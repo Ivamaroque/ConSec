@@ -14,5 +14,8 @@ namespace ConSec.Data
 
     // NOVA TABELA de Temas de Custo
     public DbSet<TemaCusto> TemasCusto { get; set; }
+
+    // Tabela de Custos
+    public DbSet<Custo> Custos { get; set; }
   }
 }
