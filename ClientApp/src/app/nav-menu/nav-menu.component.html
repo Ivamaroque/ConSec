@@ -19,7 +19,7 @@
         class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
         [ngClass]="{ show: isExpanded }"
       >
-        <ul class="navbar-nav flex-grow">
+        <ul class="navbar-nav flex-grow" *ngIf="authService.isLoggedIn()">
           <li
             class="nav-item"
             [routerLinkActive]="['link-active']"
@@ -27,15 +27,35 @@
           >
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/counter']"
-              >Counter</a
-            >
+          
+          <!-- Opções para Gestor -->
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isGestor">
+            <a class="nav-link text-dark" [routerLink]="['/dashboard']">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
           </li>
-          <li class="nav-item" [routerLinkActive]="['link-active']">
-            <a class="nav-link text-dark" [routerLink]="['/fetch-data']"
-              >Fetch data</a
-            >
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isGestor">
+            <a class="nav-link text-dark" [routerLink]="['/gerenciar-temas']">
+              <i class="bi bi-tags"></i> Gerenciar Temas
+            </a>
+          </li>
+          
+          <!-- Opções para Funcionário -->
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="!isGestor">
+            <a class="nav-link text-dark" [routerLink]="['/cadastrar-custos']">
+              <i class="bi bi-cash-coin"></i> Meus Custos
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <span class="nav-link text-dark">
+              <i class="bi bi-person-circle"></i> <strong>{{ currentUser?.nome }}</strong> ({{ currentUser?.cargo }})
+            </span>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-link nav-link text-dark" (click)="logout()">
+              <i class="bi bi-box-arrow-right"></i> Sair
+            </button>
           </li>
         </ul>
       </div>

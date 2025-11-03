@@ -24,6 +24,9 @@ namespace ConSec.Models
         [Required]
         public DateTime DataPagamento { get; set; }
 
+        [StringLength(500)]
+        public string? Comentario { get; set; } // Comentário opcional
+
         [StringLength(255)]
         public string? ArquivoAnexoPath { get; set; } // '?' torna o campo opcional
 

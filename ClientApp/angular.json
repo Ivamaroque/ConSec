@@ -132,5 +132,8 @@
       }
     }
   },
-  "defaultProject": "ConSec"
+  "defaultProject": "ConSec",
+  "cli": {
+    "analytics": "3bff98d5-006f-4582-a0d9-3fb15fff45f4"
+  }
 }

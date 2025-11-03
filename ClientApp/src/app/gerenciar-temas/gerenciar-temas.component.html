@@ -1,0 +1,116 @@
+<div class="container mt-4">
+  <h2>Gerenciar Temas de Custo</h2>
+
+  <!-- Mensagens -->
+  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Botão para criar novo tema -->
+  <div class="mb-3">
+    <button class="btn btn-primary" (click)="openCreateForm()" *ngIf="!showForm">
+      <i class="bi bi-plus-circle"></i> Novo Tema
+    </button>
+  </div>
+
+  <!-- Formulário de criação/edição -->
+  <div *ngIf="showForm" class="card mb-4">
+    <div class="card-header">
+      <h5>{{ editMode ? 'Editar Tema' : 'Novo Tema' }}</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="saveTema()">
+        <div class="mb-3">
+          <label for="nome" class="form-label">Nome *</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="nome" 
+            [(ngModel)]="temaForm.nome" 
+            name="nome"
+            required
+            maxlength="100"
+            placeholder="Ex: Alimentação, Transporte, etc.">
+        </div>
+
+        <div class="mb-3">
+          <label for="descricao" class="form-label">Descrição</label>
+          <textarea 
+            class="form-control" 
+            id="descricao" 
+            [(ngModel)]="temaForm.descricao" 
+            name="descricao"
+            rows="3"
+            maxlength="500"
+            placeholder="Descrição opcional do tema"></textarea>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success" [disabled]="loading">
+            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+            {{ editMode ? 'Atualizar' : 'Criar' }}
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="closeForm()" [disabled]="loading">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Tabela de temas -->
+  <div class="card">
+    <div class="card-header">
+      <h5>Temas Cadastrados</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && temas.length === 0" class="alert alert-info">
+        Nenhum tema cadastrado. Clique em "Novo Tema" para criar o primeiro.
+      </div>
+
+      <table *ngIf="!loading && temas.length > 0" class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Descrição</th>
+            <th class="text-end">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tema of temas">
+            <td>{{ tema.id }}</td>
+            <td><strong>{{ tema.nome }}</strong></td>
+            <td>{{ tema.descricao || '-' }}</td>
+            <td class="text-end">
+              <button 
+                class="btn btn-sm btn-warning me-2" 
+                (click)="openEditForm(tema)"
+                [disabled]="loading">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+              <button 
+                class="btn btn-sm btn-danger" 
+                (click)="deleteTema(tema.id, tema.nome)"
+                [disabled]="loading">
+                <i class="bi bi-trash"></i> Excluir
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

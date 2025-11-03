@@ -1,0 +1,238 @@
+<div class="container-fluid mt-4">
+  <h2>Dashboard - Controle de Custos</h2>
+
+  <!-- Mensagem de erro -->
+  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5><i class="bi bi-funnel"></i> Filtros</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label for="dataInicio" class="form-label">Data Início</label>
+          <input 
+            type="date" 
+            class="form-control" 
+            id="dataInicio" 
+            [(ngModel)]="filtros.dataInicio">
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <label for="dataFim" class="form-label">Data Fim</label>
+          <input 
+            type="date" 
+            class="form-control" 
+            id="dataFim" 
+            [(ngModel)]="filtros.dataFim">
+        </div>
+
+        <div class="col-md-3 mb-3">
+          <label for="temaCustoId" class="form-label">Categoria</label>
+          <select 
+            class="form-select" 
+            id="temaCustoId" 
+            [(ngModel)]="filtros.temaCustoId">
+            <option [ngValue]="null">Todas</option>
+            <option *ngFor="let tema of temas" [ngValue]="tema.id">
+              {{ tema.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="col-md-3 mb-3 d-flex align-items-end">
+          <button class="btn btn-primary me-2" (click)="aplicarFiltros()" [disabled]="loading">
+            <i class="bi bi-search"></i> Filtrar
+          </button>
+          <button class="btn btn-secondary" (click)="limparFiltros()" [disabled]="loading">
+            <i class="bi bi-x-circle"></i> Limpar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards de Resumo -->
+  <div class="row mb-4" *ngIf="resumo">
+    <div class="col-md-6 mb-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-cash-stack"></i> Total Geral</h5>
+          <h2 class="card-text">{{ formatCurrency(resumo.totalGeral) }}</h2>
+          <p class="card-text">{{ resumo.quantidadeTotal }} registro(s)</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-graph-up"></i> Média por Custo</h5>
+          <h2 class="card-text">
+            {{ resumo.quantidadeTotal > 0 ? formatCurrency(resumo.totalGeral / resumo.quantidadeTotal) : formatCurrency(0) }}
+          </h2>
+          <p class="card-text">Valor médio dos custos</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumo por Categoria -->
+  <div class="card mb-4" *ngIf="resumo && resumo.porTema.length > 0">
+    <div class="card-header">
+      <h5><i class="bi bi-pie-chart"></i> Custos por Categoria</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Categoria</th>
+              <th class="text-end">Total</th>
+              <th class="text-end">Quantidade</th>
+              <th class="text-end">% do Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tema of resumo.porTema">
+              <td><span class="badge bg-info">{{ tema.temaNome }}</span></td>
+              <td class="text-end fw-bold text-success">{{ formatCurrency(tema.total) }}</td>
+              <td class="text-end">{{ tema.quantidade }}</td>
+              <td class="text-end">
+                <div class="progress" style="height: 20px;">
+                  <div 
+                    class="progress-bar" 
+                    role="progressbar" 
+                    [style.width.%]="getTotalPorcentagem(tema.total)"
+                    [attr.aria-valuenow]="getTotalPorcentagem(tema.total)" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ getTotalPorcentagem(tema.total).toFixed(1) }}%
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumo por Usuário -->
+  <div class="card mb-4" *ngIf="resumo && resumo.porUsuario.length > 0">
+    <div class="card-header">
+      <h5><i class="bi bi-people"></i> Custos por Funcionário</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Funcionário</th>
+              <th class="text-end">Total</th>
+              <th class="text-end">Quantidade</th>
+              <th class="text-end">% do Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of resumo.porUsuario">
+              <td><i class="bi bi-person-circle"></i> {{ usuario.usuarioNome }}</td>
+              <td class="text-end fw-bold text-success">{{ formatCurrency(usuario.total) }}</td>
+              <td class="text-end">{{ usuario.quantidade }}</td>
+              <td class="text-end">
+                <div class="progress" style="height: 20px;">
+                  <div 
+                    class="progress-bar bg-warning" 
+                    role="progressbar" 
+                    [style.width.%]="getTotalPorcentagem(usuario.total)"
+                    [attr.aria-valuenow]="getTotalPorcentagem(usuario.total)" 
+                    aria-valuemin="0" 
+                    aria-valuemax="100">
+                    {{ getTotalPorcentagem(usuario.total).toFixed(1) }}%
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumo por Mês -->
+  <div class="card mb-4" *ngIf="resumo && resumo.porMes.length > 0">
+    <div class="card-header">
+      <h5><i class="bi bi-calendar3"></i> Custos por Mês</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Mês</th>
+              <th class="text-end">Total</th>
+              <th class="text-end">Quantidade</th>
+              <th class="text-end">Média</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mes of resumo.porMes">
+              <td>{{ mes.mes }}</td>
+              <td class="text-end fw-bold text-success">{{ formatCurrency(mes.total) }}</td>
+              <td class="text-end">{{ mes.quantidade }}</td>
+              <td class="text-end">{{ formatCurrency(mes.total / mes.quantidade) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Custos -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5><i class="bi bi-list-ul"></i> Todos os Custos</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!loading && custos.length === 0" class="alert alert-info">
+        Nenhum custo encontrado para os filtros selecionados.
+      </div>
+
+      <div *ngIf="!loading && custos.length > 0" class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Funcionário</th>
+              <th>Descrição</th>
+              <th>Categoria</th>
+              <th>Valor</th>
+              <th>Comentário</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let custo of custos">
+              <td>{{ formatDate(custo.data) }}</td>
+              <td><i class="bi bi-person-circle"></i> {{ custo.usuarioNome }}</td>
+              <td><strong>{{ custo.descricao }}</strong></td>
+              <td><span class="badge bg-info">{{ custo.temaCustoNome }}</span></td>
+              <td class="text-success fw-bold">{{ formatCurrency(custo.valor) }}</td>
+              <td>{{ custo.comentario || '-' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

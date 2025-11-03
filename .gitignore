@@ -229,3 +229,55 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Angular
+# compiled output
+/ClientApp/dist/
+/ClientApp/tmp/
+/ClientApp/out-tsc/
+/ClientApp/bazel-out/
+
+# Node
+/ClientApp/node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+/ClientApp/.sass-cache/
+/ClientApp/connect.lock
+/ClientApp/coverage/
+/ClientApp/libpeerconnection.log
+testem.log
+/ClientApp/typings/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Angular cache
+/ClientApp/.angular/
+/ClientApp/.angular/cache/
+
+# Environment files
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
