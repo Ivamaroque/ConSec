@@ -1,116 +1,232 @@
-<div class="container mt-4">
-  <h2>Gerenciar Temas de Custo</h2>
-
-  <!-- Mensagens -->
-  <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
-  </div>
-
-  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ errorMessage }}
-    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
-  </div>
-
-  <!-- Botão para criar novo tema -->
-  <div class="mb-3">
-    <button class="btn btn-primary" (click)="openCreateForm()" *ngIf="!showForm">
-      <i class="bi bi-plus-circle"></i> Novo Tema
-    </button>
-  </div>
-
-  <!-- Formulário de criação/edição -->
-  <div *ngIf="showForm" class="card mb-4">
-    <div class="card-header">
-      <h5>{{ editMode ? 'Editar Tema' : 'Novo Tema' }}</h5>
+<div class="dashboard-layout">
+  <!-- Sidebar ESQUERDA - Menu de Navegação -->
+  <aside class="sidebar-left">
+    <div class="sidebar-logo">
+      <span class="material-icons">account_balance_wallet</span>
+      <h5>ConSec</h5>
     </div>
-    <div class="card-body">
-      <form (ngSubmit)="saveTema()">
-        <div class="mb-3">
-          <label for="nome" class="form-label">Nome *</label>
-          <input 
-            type="text" 
-            class="form-control" 
-            id="nome" 
-            [(ngModel)]="temaForm.nome" 
-            name="nome"
-            required
-            maxlength="100"
-            placeholder="Ex: Alimentação, Transporte, etc.">
-        </div>
 
-        <div class="mb-3">
-          <label for="descricao" class="form-label">Descrição</label>
-          <textarea 
-            class="form-control" 
-            id="descricao" 
-            [(ngModel)]="temaForm.descricao" 
-            name="descricao"
-            rows="3"
-            maxlength="500"
-            placeholder="Descrição opcional do tema"></textarea>
-        </div>
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="nav-item">
+        <span class="material-icons">dashboard</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="/gerenciar-temas" class="nav-item active">
+        <span class="material-icons">label</span>
+        <span>Gerenciar Temas</span>
+      </a>
+      <a href="/gerenciar-funcionarios" class="nav-item">
+        <span class="material-icons">people</span>
+        <span>Gerenciar Funcionários</span>
+      </a>
+    </nav>
 
-        <div class="d-flex gap-2">
-          <button type="submit" class="btn btn-success" [disabled]="loading">
-            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            {{ editMode ? 'Atualizar' : 'Criar' }}
+    <div class="sidebar-footer">
+      <a (click)="logout()" class="nav-item logout-btn">
+        <span class="material-icons">logout</span>
+        <span>Sair</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Área CENTRAL - Conteúdo Principal -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h2><span class="material-icons">label</span> Gerenciar Temas de Custo</h2>
+          <p class="text-muted">Crie e organize temas para categorizar seus gastos</p>
+        </div>
+        <button class="btn btn-primary btn-add" (click)="openCreateForm()" *ngIf="!showForm">
+          <span class="material-icons">add_circle</span> Novo Tema
+        </button>
+      </div>
+
+      <!-- Mensagens -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span class="material-icons">check_circle</span> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span class="material-icons">error</span> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Formulário de criação/edição -->
+      <div *ngIf="showForm" class="form-card mb-4">
+        <div class="form-card-header">
+          <h5><span class="material-icons">{{ editMode ? 'edit' : 'add_circle' }}</span> {{ editMode ? 'Editar Tema' : 'Novo Tema' }}</h5>
+          <button class="btn-close-form" (click)="closeForm()" title="Fechar">
+            <span class="material-icons">close</span>
           </button>
-          <button type="button" class="btn btn-secondary" (click)="closeForm()" [disabled]="loading">
-            Cancelar
-          </button>
         </div>
-      </form>
-    </div>
-  </div>
+        <div class="form-card-body">
+          <form (ngSubmit)="saveTema()">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="funcionario" class="form-label">
+                  <span class="material-icons">account_circle</span> Funcionário *
+                </label>
+                <select
+                  class="form-select"
+                  id="funcionario"
+                  [(ngModel)]="temaForm.usuarioId"
+                  name="funcionario"
+                  required>
+                  <option [ngValue]="0" disabled>Selecione um funcionário</option>
+                  <option *ngFor="let func of funcionarios" [ngValue]="func.id">
+                    {{ func.nome }} ({{ func.email }})
+                  </option>
+                </select>
+              </div>
 
-  <!-- Tabela de temas -->
-  <div class="card">
-    <div class="card-header">
-      <h5>Temas Cadastrados</h5>
-    </div>
-    <div class="card-body">
-      <div *ngIf="loading" class="text-center py-4">
-        <div class="spinner-border" role="status">
+              <div class="col-md-6">
+                <label for="nome" class="form-label">
+                  <span class="material-icons">label</span> Nome do Tema *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nome"
+                  [(ngModel)]="temaForm.nome"
+                  name="nome"
+                  required
+                  maxlength="100"
+                  placeholder="Ex: Alimentação, Transporte, etc.">
+              </div>
+
+              <div class="col-md-8">
+                <label for="descricao" class="form-label">
+                  <span class="material-icons">description</span> Descrição
+                </label>
+                <textarea
+                  class="form-control"
+                  id="descricao"
+                  [(ngModel)]="temaForm.descricao"
+                  name="descricao"
+                  rows="3"
+                  maxlength="500"
+                  placeholder="Descrição opcional do tema"></textarea>
+              </div>
+
+              <div class="col-md-4">
+                <label for="cor" class="form-label">
+                  <span class="material-icons">palette</span> Cor do Tema *
+                </label>
+                <div class="color-picker-wrapper">
+                  <input
+                    type="color"
+                    class="form-control form-control-color"
+                    id="cor"
+                    [(ngModel)]="temaForm.cor"
+                    name="cor"
+                    title="Escolha a cor do tema">
+                  <span class="color-preview-large" [style.background-color]="temaForm.cor || '#3498db'">
+                    {{ temaForm.cor || '#3498db' }}
+                  </span>
+                </div>
+                <small class="form-text text-muted">
+                  <span class="material-icons">info</span> Usada no gráfico e nos cards
+                </small>
+              </div>
+
+              <div class="col-12">
+                <label for="icone" class="form-label">
+                  <span class="material-icons">emoji_symbols</span> Ícone do Tema *
+                </label>
+                <div class="icon-selector">
+                  <div 
+                    *ngFor="let icone of iconesDisponiveis" 
+                    class="icon-option"
+                    [class.selected]="temaForm.icone === icone.nome"
+                    (click)="temaForm.icone = icone.nome"
+                    [title]="icone.descricao">
+                    <span class="material-icons" [style.color]="temaForm.cor || '#3498db'">{{ icone.nome }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button type="submit" class="btn btn-success" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <span class="material-icons">{{ editMode ? 'check_circle' : 'add_circle' }}</span>
+                {{ editMode ? 'Atualizar' : 'Criar Tema' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeForm()" [disabled]="loading">
+                <span class="material-icons">close</span> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading && !showForm" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Carregando...</span>
         </div>
+        <p class="mt-2 text-muted">Carregando temas...</p>
       </div>
 
-      <div *ngIf="!loading && temas.length === 0" class="alert alert-info">
-        Nenhum tema cadastrado. Clique em "Novo Tema" para criar o primeiro.
+      <!-- Lista de Temas (Cards) -->
+      <div *ngIf="!loading && temas.length === 0" class="empty-state">
+        <span class="material-icons">inbox</span>
+        <h5>Nenhum tema cadastrado</h5>
+        <p>Clique em "Novo Tema" para criar o primeiro.</p>
       </div>
 
-      <table *ngIf="!loading && temas.length > 0" class="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th class="text-end">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let tema of temas">
-            <td>{{ tema.id }}</td>
-            <td><strong>{{ tema.nome }}</strong></td>
-            <td>{{ tema.descricao || '-' }}</td>
-            <td class="text-end">
-              <button 
-                class="btn btn-sm btn-warning me-2" 
+      <div *ngIf="!loading && temas.length > 0" class="temas-grid">
+        <div *ngFor="let tema of temas" class="tema-card">
+          <div class="tema-color-bar" [style.background-color]="tema.cor || '#3498db'"></div>
+
+          <div class="tema-header">
+            <div class="tema-icon" [style.background-color]="tema.cor || '#3498db'">
+              <span class="material-icons">{{ tema.icone || 'label' }}</span>
+            </div>
+            <div class="tema-info">
+              <h5>{{ tema.nome }}</h5>
+              <p class="tema-descricao">{{ tema.descricao || 'Sem descrição' }}</p>
+            </div>
+          </div>
+
+          <div class="tema-body">
+            <div class="tema-detail">
+              <span class="material-icons" [style.color]="tema.cor || '#3498db'">{{ tema.icone || 'label' }}</span>
+              <span>{{ tema.usuarioNome }}</span>
+            </div>
+            <div class="tema-detail">
+              <span class="material-icons">palette</span>
+              <span class="color-code">{{ tema.cor || '#3498db' }}</span>
+              <span class="color-preview-small" [style.background-color]="tema.cor || '#3498db'"></span>
+            </div>
+          </div>
+
+          <div class="tema-footer">
+            <small class="text-muted">
+              <span class="material-icons">tag</span> ID: {{ tema.id }}
+            </small>
+            <div class="tema-actions">
+              <button
+                class="btn btn-sm btn-warning"
                 (click)="openEditForm(tema)"
-                [disabled]="loading">
-                <i class="bi bi-pencil"></i> Editar
+                [disabled]="loading"
+                title="Editar tema">
+                <span class="material-icons">edit</span> Editar
               </button>
-              <button 
-                class="btn btn-sm btn-danger" 
+              <button
+                class="btn btn-sm btn-danger"
                 (click)="deleteTema(tema.id, tema.nome)"
-                [disabled]="loading">
-                <i class="bi bi-trash"></i> Excluir
+                [disabled]="loading"
+                title="Excluir tema">
+                <span class="material-icons">delete</span> Excluir
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </main>
 </div>

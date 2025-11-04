@@ -9,7 +9,8 @@ const PROXY_CONFIG = [
   {
     context: [
       "/weatherforecast",
-      "/api"
+      "/api",
+      "/uploads"  // Adiciona suporte para arquivos de upload
    ],
     proxyTimeout: 10000,
     target: target,

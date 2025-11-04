@@ -13,6 +13,7 @@ namespace ConSec.Models.DTOs
         // Informações do Tema
         public int TemaCustoId { get; set; }
         public string TemaCustoNome { get; set; } = string.Empty;
+        public string TemaCustoCor { get; set; } = "#3498db";
         
         // Informações do Usuário
         public int UsuarioId { get; set; }

@@ -18,6 +18,10 @@ export class CadastrarCustosComponent implements OnInit {
   showForm = false;
   editMode = false;
   currentCustoId: number | null = null;
+
+  // Armazena o valor em centavos (inteiro)
+  valorEmCentavos: number = 0;
+
   custoForm: any = {
     descricao: '',
     valor: null,
@@ -50,7 +54,7 @@ export class CadastrarCustosComponent implements OnInit {
   loadCustos(): void {
     this.loading = true;
     this.errorMessage = '';
-    
+
     this.custoService.getMyCustos().subscribe({
       next: (data) => {
         this.custos = data;
@@ -68,7 +72,7 @@ export class CadastrarCustosComponent implements OnInit {
     this.showForm = true;
     this.editMode = false;
     this.currentCustoId = null;
-    
+
     // Define data de hoje como padrão
     const today = new Date().toISOString().split('T')[0];
     this.custoForm = {
@@ -78,6 +82,10 @@ export class CadastrarCustosComponent implements OnInit {
       comentario: '',
       temaCustoId: null
     };
+
+    // Reseta o valor em centavos
+    this.valorEmCentavos = 0;
+
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -89,10 +97,14 @@ export class CadastrarCustosComponent implements OnInit {
     this.custoForm = {
       descricao: custo.descricao,
       valor: custo.valor,
-      data: custo.data.split('T')[0], // Converte para formato yyyy-MM-dd
+      data: custo.dataPagamento.split('T')[0], // Converte para formato yyyy-MM-dd
       comentario: custo.comentario || '',
       temaCustoId: custo.temaCustoId
     };
+
+    // Converte o valor para centavos
+    this.valorEmCentavos = Math.round(custo.valor * 100);
+
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -108,6 +120,10 @@ export class CadastrarCustosComponent implements OnInit {
       comentario: '',
       temaCustoId: null
     };
+
+    // Reseta o valor em centavos
+    this.valorEmCentavos = 0;
+
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -219,5 +235,36 @@ export class CadastrarCustosComponent implements OnInit {
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('pt-BR').format(date);
+  }
+
+  // Formata o valor para exibição (R$ 0,00)
+  formatValueDisplay(): string {
+    const reais = Math.floor(this.valorEmCentavos / 100);
+    const centavos = this.valorEmCentavos % 100;
+    return `R$ ${reais.toLocaleString('pt-BR')},${centavos.toString().padStart(2, '0')}`;
+  }
+
+  // Manipula a digitação no campo de valor
+  handleValueKeydown(event: KeyboardEvent): void {
+    // Permite apenas números, backspace e delete
+    if (event.key >= '0' && event.key <= '9') {
+      event.preventDefault();
+      // Adiciona o dígito à direita
+      this.valorEmCentavos = this.valorEmCentavos * 10 + parseInt(event.key);
+      // Atualiza o valor no formulário (em reais)
+      this.custoForm.valor = this.valorEmCentavos / 100;
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      event.preventDefault();
+      // Remove o último dígito
+      this.valorEmCentavos = Math.floor(this.valorEmCentavos / 10);
+      // Atualiza o valor no formulário (em reais)
+      this.custoForm.valor = this.valorEmCentavos / 100;
+    } else if (event.key === 'Tab' || event.key === 'Enter') {
+      // Permite Tab e Enter para navegação
+      return;
+    } else {
+      // Bloqueia outras teclas
+      event.preventDefault();
+    }
   }
 }

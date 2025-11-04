@@ -42,6 +42,7 @@ namespace ConSec.Controllers
                     ArquivoAnexoPath = c.ArquivoAnexoPath,
                     TemaCustoId = c.TemaCustoId,
                     TemaCustoNome = c.TemaCusto.Nome,
+                    TemaCustoCor = c.TemaCusto.Cor,
                     UsuarioId = c.UsuarioId,
                     UsuarioNome = c.Usuario.Nome,
                     UsuarioEmail = c.Usuario.Email
@@ -85,6 +86,7 @@ namespace ConSec.Controllers
                 ArquivoAnexoPath = custo.ArquivoAnexoPath,
                 TemaCustoId = custo.TemaCustoId,
                 TemaCustoNome = custo.TemaCusto.Nome,
+                TemaCustoCor = custo.TemaCusto.Cor,
                 UsuarioId = custo.UsuarioId,
                 UsuarioNome = custo.Usuario.Nome,
                 UsuarioEmail = custo.Usuario.Email
@@ -95,7 +97,7 @@ namespace ConSec.Controllers
 
         // POST: api/custo
         [HttpPost]
-        public async Task<ActionResult<CustoResponseDto>> Create([FromBody] CreateCustoDto dto)
+        public async Task<ActionResult<CustoResponseDto>> Create([FromForm] CreateCustoDto dto, [FromForm] IFormFile? arquivoAnexo)
         {
             if (!ModelState.IsValid)
             {
@@ -111,6 +113,46 @@ namespace ConSec.Controllers
                 return BadRequest(new { message = "Tema de custo não encontrado" });
             }
 
+            string? arquivoPath = null;
+
+            // Processa o arquivo se foi enviado
+            if (arquivoAnexo != null && arquivoAnexo.Length > 0)
+            {
+                // Validar tamanho (5MB)
+                if (arquivoAnexo.Length > 5 * 1024 * 1024)
+                {
+                    return BadRequest(new { message = "O arquivo deve ter no máximo 5MB" });
+                }
+
+                // Validar extensão
+                var extensoesPermitidas = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
+                var extensao = Path.GetExtension(arquivoAnexo.FileName).ToLowerInvariant();
+                
+                if (!extensoesPermitidas.Contains(extensao))
+                {
+                    return BadRequest(new { message = "Formato de arquivo não permitido. Use: PDF, JPG, PNG" });
+                }
+
+                // Criar pasta de uploads se não existir
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                // Gerar nome único para o arquivo
+                var nomeArquivo = $"{Guid.NewGuid()}{extensao}";
+                var caminhoCompleto = Path.Combine(uploadsFolder, nomeArquivo);
+
+                // Salvar arquivo
+                using (var stream = new FileStream(caminhoCompleto, FileMode.Create))
+                {
+                    await arquivoAnexo.CopyToAsync(stream);
+                }
+
+                arquivoPath = $"/uploads/{nomeArquivo}";
+            }
+
             var custo = new Custo
             {
                 Descricao = dto.Descricao,
@@ -118,6 +160,7 @@ namespace ConSec.Controllers
                 DataPagamento = dto.DataPagamento,
                 Tipo = dto.Tipo,
                 Comentario = dto.Comentario,
+                ArquivoAnexoPath = arquivoPath,
                 TemaCustoId = dto.TemaCustoId,
                 UsuarioId = userId
             };

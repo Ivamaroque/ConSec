@@ -27,5 +27,8 @@ namespace ConSec.Models
         // Propriedades para controle de data (boas práticas)
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Navegação inversa - Temas associados a este usuário
+        public virtual ICollection<TemaCusto> TemasCusto { get; set; } = new List<TemaCusto>();
     }
 }

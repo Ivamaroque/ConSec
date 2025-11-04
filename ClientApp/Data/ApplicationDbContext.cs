@@ -17,5 +17,17 @@ namespace ConSec.Data
 
     // Tabela de Custos
     public DbSet<Custo> Custos { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+      base.OnModelCreating(modelBuilder);
+
+      // Configurar relacionamento Usuario -> TemasCusto
+      modelBuilder.Entity<Usuario>()
+        .HasMany(u => u.TemasCusto)
+        .WithOne(t => t.Usuario)
+        .HasForeignKey(t => t.UsuarioId)
+        .OnDelete(DeleteBehavior.SetNull);
+    }
   }
 }

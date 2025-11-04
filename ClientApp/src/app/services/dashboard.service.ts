@@ -5,6 +5,7 @@ import { CustoResponse } from './custo.service';
 
 export interface ResumoTema {
   temaNome: string;
+  temaCor: string;
   total: number;
   quantidade: number;
 }
@@ -47,7 +48,7 @@ export class DashboardService {
 
   getResumo(dataInicio?: string, dataFim?: string, temaCustoId?: number, usuarioId?: number): Observable<DashboardResumo> {
     let params = new HttpParams();
-    
+
     if (dataInicio) {
       params = params.set('dataInicio', dataInicio);
     }
@@ -61,7 +62,7 @@ export class DashboardService {
       params = params.set('usuarioId', usuarioId.toString());
     }
 
-    return this.http.get<DashboardResumo>(`${this.apiUrl}/resumo`, { 
+    return this.http.get<DashboardResumo>(`${this.apiUrl}/resumo`, {
       headers: this.getAuthHeaders(),
       params: params
     });
@@ -69,7 +70,7 @@ export class DashboardService {
 
   getAllCustos(dataInicio?: string, dataFim?: string, temaCustoId?: number, usuarioId?: number): Observable<CustoResponse[]> {
     let params = new HttpParams();
-    
+
     if (dataInicio) {
       params = params.set('dataInicio', dataInicio);
     }
@@ -83,9 +84,15 @@ export class DashboardService {
       params = params.set('usuarioId', usuarioId.toString());
     }
 
-    return this.http.get<CustoResponse[]>(`${this.apiUrl}/custos`, { 
+    return this.http.get<CustoResponse[]>(`${this.apiUrl}/custos`, {
       headers: this.getAuthHeaders(),
       params: params
+    });
+  }
+
+  deleteCusto(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/custo/${id}`, {
+      headers: this.getAuthHeaders()
     });
   }
 }

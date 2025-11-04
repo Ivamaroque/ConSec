@@ -1,0 +1,434 @@
+/* Layout com 3 colunas: Sidebar Left + Main + Sidebar Right */
+.meus-custos-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+/* Sidebar ESQUERDA - Temas Disponíveis */
+.sidebar-left {
+  width: 250px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 0;
+  position: fixed;
+  height: 100vh;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  text-align: center;
+}
+
+.sidebar-logo .material-icons {
+  font-size: 36px;
+  margin-bottom: 4px;
+  color: #3498db;
+}
+
+.sidebar-logo h5 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+/* Info do Usuário */
+.user-info {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info .material-icons {
+  font-size: 48px;
+  color: #3498db;
+}
+
+.user-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.user-role {
+  font-size: 12px;
+  color: rgba(255,255,255,0.7);
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.nav-section-title {
+  padding: 12px 24px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-section-title .material-icons {
+  font-size: 16px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background-color: rgba(255,255,255,0.05);
+  color: white;
+  border-left-color: #3498db;
+}
+
+.nav-item.active {
+  background-color: rgba(52,152,219,0.15);
+  color: white;
+  border-left-color: #3498db;
+  font-weight: 600;
+}
+
+.nav-item .material-icons {
+  font-size: 18px;
+  margin-right: 12px;
+  width: 18px;
+  text-align: center;
+}
+
+.logout-btn:hover {
+  background-color: rgba(231, 76, 60, 0.15);
+  border-left-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.sidebar-footer {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 16px 0;
+}
+
+/* Área CENTRAL */
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  margin-right: 300px;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.content-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-header h2 .material-icons {
+  color: #3498db;
+  font-size: 28px;
+}
+
+.page-header p {
+  margin: 0;
+  font-size: 14px;
+  color: #6c757d;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.empty-state .material-icons {
+  font-size: 64px;
+  color: #cbd5e0;
+  margin-bottom: 16px;
+}
+
+.empty-state h5 {
+  color: #2c3e50;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Form Card */
+.form-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.form-card-header {
+  background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+  color: white;
+  padding: 20px 24px;
+}
+
+.form-card-header h5 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-card-header .material-icons {
+  font-size: 24px;
+}
+
+.form-card-body {
+  padding: 32px 24px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-label .material-icons {
+  font-size: 18px;
+  color: #6c757d;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 2px solid #e9ecef;
+  padding: 10px 14px;
+  transition: all 0.2s;
+}
+
+.form-control:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.15);
+}
+
+/* Input Group para Valor */
+.input-group {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  border: 2px solid #e9ecef;
+  border-right: none;
+  color: #495057;
+  font-weight: 600;
+  padding: 10px 14px;
+}
+
+.input-group .form-control {
+  border-left: none;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.input-group:focus-within .input-group-text {
+  border-color: #3498db;
+}
+
+.input-group:focus-within .form-control {
+  border-color: #3498db;
+}
+
+/* Sidebar DIREITA - Custos do Mês */
+.sidebar-right {
+  width: 300px;
+  background-color: #fff;
+  border-left: 1px solid #e0e0e0;
+  padding: 20px 16px;
+  position: fixed;
+  height: 100vh;
+  right: 0;
+  top: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-title .material-icons {
+  font-size: 20px;
+  color: #3498db;
+}
+
+.month-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.month-selector .form-select {
+  font-size: 12px;
+}
+
+/* Lista de Custos */
+.custos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.custo-item {
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s;
+}
+
+.custo-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transform: translateY(-1px);
+}
+
+.custo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.custo-tema {
+  font-size: 11px;
+  font-weight: 600;
+  color: #3498db;
+}
+
+.custo-date {
+  font-size: 10px;
+  color: #6c757d;
+}
+
+.custo-body {
+  margin: 0;
+}
+
+.custo-descricao {
+  font-size: 13px;
+  color: #2c3e50;
+  margin: 0 0 4px 0;
+  font-weight: 500;
+}
+
+.custo-valor {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e74c3c;
+  margin: 0;
+}
+
+/* Scrollbar customizada */
+.sidebar-right::-webkit-scrollbar,
+.sidebar-left::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-right::-webkit-scrollbar-track,
+.sidebar-left::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar-right::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.sidebar-left::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+}
+
+.sidebar-right::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.sidebar-left::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn .material-icons {
+  font-size: 18px;
+}
+
+/* Alerts */
+.alert {
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.alert .material-icons {
+  font-size: 20px;
+}

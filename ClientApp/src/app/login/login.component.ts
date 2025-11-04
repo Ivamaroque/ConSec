@@ -20,9 +20,13 @@ export class LoginComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Se já estiver logado, redireciona
+    // Se já estiver logado, redireciona baseado no tipo de usuário
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/']);
+      if (this.authService.isGestor()) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.router.navigate(['/meus-custos']);
+      }
     }
 
     this.loginForm = this.formBuilder.group({
@@ -50,8 +54,12 @@ export class LoginComponent implements OnInit {
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         this.loading = false;
-        // Redireciona para a página inicial
-        this.router.navigate(['/']);
+        // Redireciona baseado no tipo de usuário
+        if (this.authService.isGestor()) {
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.router.navigate(['/meus-custos']);
+        }
       },
       error: (error) => {
         this.loading = false;

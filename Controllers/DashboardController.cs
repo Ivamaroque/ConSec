@@ -20,72 +20,95 @@ namespace ConSec.Controllers
 
         // GET: api/dashboard/resumo
         [HttpGet("resumo")]
-        public async Task<ActionResult> GetResumo()
+        public async Task<ActionResult> GetResumo(
+            [FromQuery] DateTime? dataInicio = null,
+            [FromQuery] DateTime? dataFim = null,
+            [FromQuery] int? temaCustoId = null,
+            [FromQuery] int? usuarioId = null)
         {
-            var totalCustos = await _context.Custos.CountAsync();
-            var valorTotal = await _context.Custos.SumAsync(c => (decimal?)c.Valor) ?? 0;
-            var totalTemas = await _context.TemasCusto.CountAsync();
-            var totalUsuarios = await _context.Usuarios.CountAsync(u => u.Cargo == "funcionario");
+            // Base query com filtros
+            var query = _context.Custos.AsQueryable();
+
+            if (dataInicio.HasValue)
+            {
+                query = query.Where(c => c.DataPagamento >= dataInicio.Value);
+            }
+
+            if (dataFim.HasValue)
+            {
+                query = query.Where(c => c.DataPagamento <= dataFim.Value);
+            }
+
+            if (temaCustoId.HasValue)
+            {
+                query = query.Where(c => c.TemaCustoId == temaCustoId.Value);
+            }
+
+            if (usuarioId.HasValue)
+            {
+                query = query.Where(c => c.UsuarioId == usuarioId.Value);
+            }
+
+            var totalGeral = await query.SumAsync(c => (decimal?)c.Valor) ?? 0;
+            var quantidadeTotal = await query.CountAsync();
 
             // Custos por tema
-            var custosPorTema = await _context.TemasCusto
-                .Select(t => new
+            var porTema = await query
+                .Include(c => c.TemaCusto)
+                .GroupBy(c => c.TemaCustoId)
+                .Select(g => new
                 {
-                    TemaId = t.Id,
-                    TemaNome = t.Nome,
-                    TotalCustos = _context.Custos.Count(c => c.TemaCustoId == t.Id),
-                    ValorTotal = _context.Custos
-                        .Where(c => c.TemaCustoId == t.Id)
-                        .Sum(c => (decimal?)c.Valor) ?? 0
+                    temaNome = g.First().TemaCusto!.Nome,
+                    temaCor = g.First().TemaCusto!.Cor,
+                    total = g.Sum(c => c.Valor),
+                    quantidade = g.Count()
                 })
-                .Where(x => x.TotalCustos > 0)
-                .OrderByDescending(x => x.ValorTotal)
+                .OrderByDescending(x => x.total)
                 .ToListAsync();
 
             // Custos por usuário
-            var custosPorUsuario = await _context.Usuarios
-                .Where(u => u.Cargo == "funcionario")
-                .Select(u => new
+            var porUsuario = await query
+                .Include(c => c.Usuario)
+                .GroupBy(c => c.UsuarioId)
+                .Select(g => new
                 {
-                    UsuarioId = u.Id,
-                    UsuarioNome = u.Nome,
-                    UsuarioEmail = u.Email,
-                    TotalCustos = _context.Custos.Count(c => c.UsuarioId == u.Id),
-                    ValorTotal = _context.Custos
-                        .Where(c => c.UsuarioId == u.Id)
-                        .Sum(c => (decimal?)c.Valor) ?? 0
+                    usuarioNome = g.First().Usuario!.Nome,
+                    total = g.Sum(c => c.Valor),
+                    quantidade = g.Count()
                 })
-                .Where(x => x.TotalCustos > 0)
-                .OrderByDescending(x => x.ValorTotal)
+                .OrderByDescending(x => x.total)
                 .ToListAsync();
 
-            // Custos por mês (últimos 6 meses)
-            var seisMesesAtras = DateTime.Now.AddMonths(-6);
-            var custosPorMes = await _context.Custos
-                .Where(c => c.DataPagamento >= seisMesesAtras)
+            // Custos por mês
+            var porMesTemp = await query
                 .GroupBy(c => new { Ano = c.DataPagamento.Year, Mes = c.DataPagamento.Month })
                 .Select(g => new
                 {
-                    Ano = g.Key.Ano,
-                    Mes = g.Key.Mes,
-                    TotalCustos = g.Count(),
-                    ValorTotal = g.Sum(c => c.Valor)
+                    ano = g.Key.Ano,
+                    mes = g.Key.Mes,
+                    total = g.Sum(c => c.Valor),
+                    quantidade = g.Count()
                 })
-                .OrderBy(x => x.Ano).ThenBy(x => x.Mes)
                 .ToListAsync();
+
+            var porMes = porMesTemp
+                .OrderBy(x => x.ano)
+                .ThenBy(x => x.mes)
+                .Select(x => new
+                {
+                    mes = x.mes.ToString().PadLeft(2, '0') + "/" + x.ano,
+                    total = x.total,
+                    quantidade = x.quantidade
+                })
+                .ToList();
 
             return Ok(new
             {
-                resumoGeral = new
-                {
-                    totalCustos,
-                    valorTotal,
-                    totalTemas,
-                    totalFuncionarios = totalUsuarios
-                },
-                custosPorTema,
-                custosPorUsuario,
-                custosPorMes
+                totalGeral,
+                quantidadeTotal,
+                porTema,
+                porUsuario,
+                porMes
             });
         }
 
@@ -136,6 +159,7 @@ namespace ConSec.Controllers
                     ArquivoAnexoPath = c.ArquivoAnexoPath,
                     TemaCustoId = c.TemaCustoId,
                     TemaCustoNome = c.TemaCusto!.Nome,
+                    TemaCustoCor = c.TemaCusto!.Cor,
                     UsuarioId = c.UsuarioId,
                     UsuarioNome = c.Usuario!.Nome,
                     UsuarioEmail = c.Usuario.Email

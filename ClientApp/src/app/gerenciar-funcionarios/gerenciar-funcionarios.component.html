@@ -1,0 +1,201 @@
+<div class="dashboard-layout">
+  <!-- Sidebar ESQUERDA - Menu de Navegação -->
+  <aside class="sidebar-left">
+    <div class="sidebar-logo">
+      <span class="material-icons">account_balance_wallet</span>
+      <h5>ConSec</h5>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="/dashboard" class="nav-item">
+        <span class="material-icons">dashboard</span>
+        <span>Dashboard</span>
+      </a>
+      <a href="/gerenciar-temas" class="nav-item">
+        <span class="material-icons">label</span>
+        <span>Gerenciar Temas</span>
+      </a>
+      <a href="/gerenciar-funcionarios" class="nav-item active">
+        <span class="material-icons">people</span>
+        <span>Gerenciar Funcionários</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a (click)="logout()" class="nav-item logout-btn">
+        <span class="material-icons">logout</span>
+        <span>Sair</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Área CENTRAL - Conteúdo Principal -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h2><span class="material-icons">people</span> Gerenciar Funcionários</h2>
+          <p class="text-muted">Visualize e gerencie os funcionários e seus temas</p>
+        </div>
+        <button class="btn btn-primary btn-add" (click)="openCreateForm()" *ngIf="!showForm">
+          <span class="material-icons">person_add</span> Novo Funcionário
+        </button>
+      </div>
+
+      <!-- Mensagens -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span class="material-icons">check_circle</span> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span class="material-icons">error</span> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Formulário de criação -->
+      <div *ngIf="showForm" class="form-card mb-4">
+        <div class="form-card-header">
+          <h5><span class="material-icons">{{ editMode ? 'edit' : 'person_add' }}</span> {{ editMode ? 'Editar Funcionário' : 'Cadastrar Novo Funcionário' }}</h5>
+          <button class="btn-close-form" (click)="closeForm()" title="Fechar">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="form-card-body">
+          <form (ngSubmit)="saveFuncionario()">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label for="nome" class="form-label">
+                  <span class="material-icons">person</span> Nome Completo *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nome"
+                  [(ngModel)]="funcionarioForm.nome"
+                  name="nome"
+                  required
+                  maxlength="100"
+                  placeholder="Ex: João Silva">
+              </div>
+
+              <div class="col-md-6">
+                <label for="email" class="form-label">
+                  <span class="material-icons">email</span> Email *
+                </label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  [(ngModel)]="funcionarioForm.email"
+                  name="email"
+                  required
+                  maxlength="100"
+                  placeholder="Ex: joao@empresa.com">
+              </div>
+
+              <div class="col-md-12">
+                <label for="senha" class="form-label">
+                  <span class="material-icons">lock</span> Senha {{ editMode ? '(deixe em branco para não alterar)' : '*' }}
+                </label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="senha"
+                  [(ngModel)]="funcionarioForm.senha"
+                  name="senha"
+                  [required]="!editMode"
+                  minlength="6"
+                  placeholder="Mínimo 6 caracteres">
+                <small class="form-text text-muted" *ngIf="editMode">
+                  <span class="material-icons">info</span> Deixe em branco se não quiser alterar a senha
+                </small>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <span class="material-icons">{{ editMode ? 'check_circle' : 'add_circle' }}</span> {{ editMode ? 'Atualizar' : 'Criar Funcionário' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeForm()" [disabled]="loading">
+                <span class="material-icons">close</span> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading && !showForm" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="mt-2 text-muted">Carregando funcionários...</p>
+      </div>
+
+      <!-- Lista de Funcionários (Cards) -->
+      <div *ngIf="!loading && funcionarios.length === 0" class="empty-state">
+        <span class="material-icons">inbox</span>
+        <h5>Nenhum funcionário cadastrado</h5>
+        <p>Clique em "Novo Funcionário" para criar o primeiro.</p>
+      </div>
+
+      <div *ngIf="!loading && funcionarios.length > 0" class="funcionarios-grid">
+        <div *ngFor="let func of funcionarios" class="funcionario-card">
+          <div class="funcionario-header">
+            <div class="funcionario-avatar">
+              <span class="material-icons">account_circle</span>
+            </div>
+            <div class="funcionario-info">
+              <h5>{{ func.nome }}</h5>
+              <p><span class="material-icons">email</span> {{ func.email }}</p>
+            </div>
+          </div>
+
+          <div class="funcionario-body">
+            <div class="temas-section">
+              <h6>
+                <span class="material-icons">label</span> Temas Associados
+                <span class="badge bg-primary rounded-pill">{{ func.temas.length || 0 }}</span>
+              </h6>
+
+              <div *ngIf="!func.temas || func.temas.length === 0" class="no-temas">
+                <span class="material-icons">info</span> Nenhum tema associado
+              </div>
+
+              <div *ngIf="func.temas && func.temas.length > 0" class="temas-list">
+                <span *ngFor="let tema of func.temas" class="tema-badge" [style.background-color]="tema.cor || '#667eea'">
+                  <span class="material-icons">{{ tema.icone || 'label' }}</span> {{ tema.nome }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="funcionario-footer">
+            <small class="text-muted">
+              <span class="material-icons">tag</span> ID: {{ func.id }}
+            </small>
+            <div class="funcionario-actions">
+              <button
+                class="btn btn-sm btn-warning"
+                (click)="openEditForm(func)"
+                [disabled]="loading"
+                title="Editar funcionário">
+                <span class="material-icons">edit</span> Editar
+              </button>
+              <button
+                class="btn btn-sm btn-danger"
+                (click)="deleteFuncionario(func.id, func.nome)"
+                [disabled]="loading"
+                title="Excluir funcionário">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

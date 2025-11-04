@@ -24,15 +24,35 @@ namespace ConSec.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TemaCustoResponseDto>>> GetAll()
         {
-            var temas = await _context.TemasCusto
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized();
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var query = _context.TemasCusto.Include(t => t.Usuario).AsQueryable();
+
+            // Funcionários só veem seus próprios temas
+            if (userRole == "funcionario")
+            {
+                query = query.Where(t => t.UsuarioId == userId);
+            }
+            // Gestor vê todos
+
+            var temas = await query
                 .Select(t => new TemaCustoResponseDto
                 {
                     Id = t.Id,
                     Nome = t.Nome,
-                    TotalCustos = _context.Custos.Count(c => c.TemaCustoId == t.Id),
-                    ValorTotal = _context.Custos
-                        .Where(c => c.TemaCustoId == t.Id)
-                        .Sum(c => (decimal?)c.Valor) ?? 0
+                    Descricao = t.Descricao,
+                    Cor = t.Cor,
+                    Icone = t.Icone ?? "label",
+                    UsuarioId = t.UsuarioId ?? 0,
+                    UsuarioNome = t.Usuario != null ? t.Usuario.Nome : "N/A"
                 })
                 .ToListAsync();
 
@@ -43,7 +63,9 @@ namespace ConSec.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TemaCustoResponseDto>> GetById(int id)
         {
-            var tema = await _context.TemasCusto.FindAsync(id);
+            var tema = await _context.TemasCusto
+                .Include(t => t.Usuario)
+                .FirstOrDefaultAsync(t => t.Id == id);
 
             if (tema == null)
             {
@@ -54,10 +76,9 @@ namespace ConSec.Controllers
             {
                 Id = tema.Id,
                 Nome = tema.Nome,
-                TotalCustos = await _context.Custos.CountAsync(c => c.TemaCustoId == tema.Id),
-                ValorTotal = await _context.Custos
-                    .Where(c => c.TemaCustoId == tema.Id)
-                    .SumAsync(c => (decimal?)c.Valor) ?? 0
+                Descricao = tema.Descricao,
+                UsuarioId = tema.UsuarioId ?? 0,
+                UsuarioNome = tema.Usuario?.Nome ?? "N/A"
             };
 
             return Ok(response);
@@ -73,15 +94,26 @@ namespace ConSec.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Verifica se já existe um tema com esse nome
-            if (await _context.TemasCusto.AnyAsync(t => t.Nome.ToLower() == dto.Nome.ToLower()))
+            // Verifica se o usuário existe
+            var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
+            if (usuario == null)
             {
-                return BadRequest(new { message = "Já existe um tema com esse nome" });
+                return BadRequest(new { message = "Usuário não encontrado" });
+            }
+
+            // Verifica se já existe um tema com esse nome para esse usuário
+            if (await _context.TemasCusto.AnyAsync(t => t.Nome.ToLower() == dto.Nome.ToLower() && t.UsuarioId == dto.UsuarioId))
+            {
+                return BadRequest(new { message = "Já existe um tema com esse nome para este usuário" });
             }
 
             var tema = new TemaCusto
             {
-                Nome = dto.Nome
+                Nome = dto.Nome,
+                Descricao = dto.Descricao,
+                Cor = dto.Cor,
+                Icone = dto.Icone ?? "label",
+                UsuarioId = dto.UsuarioId
             };
 
             _context.TemasCusto.Add(tema);
@@ -91,8 +123,11 @@ namespace ConSec.Controllers
             {
                 Id = tema.Id,
                 Nome = tema.Nome,
-                TotalCustos = 0,
-                ValorTotal = 0
+                Descricao = tema.Descricao,
+                Cor = tema.Cor,
+                Icone = tema.Icone ?? "label",
+                UsuarioId = tema.UsuarioId ?? 0,
+                UsuarioNome = usuario.Nome
             };
 
             return CreatedAtAction(nameof(GetById), new { id = tema.Id }, response);
@@ -120,13 +155,36 @@ namespace ConSec.Controllers
                 return NotFound(new { message = "Tema de custo não encontrado" });
             }
 
-            // Verifica se já existe outro tema com esse nome
-            if (await _context.TemasCusto.AnyAsync(t => t.Nome.ToLower() == dto.Nome.ToLower() && t.Id != id))
+            // Verifica se já existe outro tema com esse nome para o mesmo usuário
+            var usuarioIdToCheck = dto.UsuarioId ?? tema.UsuarioId;
+            if (await _context.TemasCusto.AnyAsync(t => t.Nome.ToLower() == dto.Nome.ToLower() && t.Id != id && t.UsuarioId == usuarioIdToCheck))
             {
-                return BadRequest(new { message = "Já existe outro tema com esse nome" });
+                return BadRequest(new { message = "Já existe outro tema com esse nome para este usuário" });
             }
 
             tema.Nome = dto.Nome;
+            tema.Descricao = dto.Descricao;
+            
+            if (!string.IsNullOrEmpty(dto.Cor))
+            {
+                tema.Cor = dto.Cor;
+            }
+            
+            if (!string.IsNullOrEmpty(dto.Icone))
+            {
+                tema.Icone = dto.Icone;
+            }
+            
+            if (dto.UsuarioId.HasValue)
+            {
+                // Verifica se o usuário existe
+                var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId.Value);
+                if (usuario == null)
+                {
+                    return BadRequest(new { message = "Usuário não encontrado" });
+                }
+                tema.UsuarioId = dto.UsuarioId.Value;
+            }
 
             try
             {

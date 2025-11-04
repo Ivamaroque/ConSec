@@ -1,5 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Alinhamento global dos ícones do Material Icons */
+.material-icons {
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Remover margem em ícones dentro do seletor de ícones */
+.icon-option .material-icons {
+  margin-right: 0;
+}
+
+/* Alinhamento de ícones em botões */
+button .material-icons,
+.btn .material-icons,
+a .material-icons {
+  vertical-align: middle;
+  margin-right: 6px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Alinhamento de ícones em tabelas */
+table .material-icons {
+  vertical-align: middle;
+  font-size: 18px;
+}
+
 /* Provide sufficient contrast against white background */
 a {
   color: #0366d6;

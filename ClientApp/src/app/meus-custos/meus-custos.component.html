@@ -1,0 +1,211 @@
+<div class="meus-custos-layout">
+  <!-- Sidebar ESQUERDA - Temas Disponíveis -->
+  <aside class="sidebar-left">
+    <div class="sidebar-logo">
+      <span class="material-icons">account_balance_wallet</span>
+      <h5>ConSec</h5>
+    </div>
+
+    <div class="user-info">
+      <span class="material-icons">account_circle</span>
+      <div>
+        <p class="user-name">Bem-vindo, {{ usuarioNome }}</p>
+        <small class="user-role">Setor {{ setorNumero }}</small>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">
+        <span class="material-icons">label</span>
+        <span>Temas Disponíveis</span>
+      </div>
+
+      <a *ngFor="let tema of temas"
+         (click)="selecionarTema(tema)"
+         [class.active]="temaSelecionado?.id === tema.id"
+         class="nav-item">
+        <span class="material-icons">{{ tema.icone || 'label' }}</span>
+        <span>{{ tema.nome }}</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a (click)="logout()" class="nav-item logout-btn">
+        <span class="material-icons">logout</span>
+        <span>Sair</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Área CENTRAL - Adicionar Custos -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <div class="page-header">
+        <div>
+          <h2>
+            <span class="material-icons">receipt_long</span>
+            {{ temaSelecionado ? 'Adicionar Custo - ' + temaSelecionado.nome : 'Selecione um Tema' }}
+          </h2>
+          <p class="text-muted">Preencha os dados para registrar um novo custo</p>
+        </div>
+      </div>
+
+      <!-- Mensagem se nenhum tema selecionado -->
+      <div *ngIf="!temaSelecionado" class="empty-state">
+        <span class="material-icons">touch_app</span>
+        <h5>Selecione um tema</h5>
+        <p>Escolha um tema na barra lateral para adicionar custos</p>
+      </div>
+
+      <!-- Formulário de Adicionar Custo -->
+      <div *ngIf="temaSelecionado" class="form-card">
+        <div class="form-card-header">
+          <h5>
+            <span class="material-icons">add_circle</span>
+            Novo Custo
+          </h5>
+        </div>
+
+        <div class="form-card-body">
+          <form [formGroup]="custoForm" (ngSubmit)="onSubmit()">
+            <div class="row">
+              <div class="col-md-12 mb-3">
+                <label class="form-label">
+                  <span class="material-icons">description</span>
+                  Descrição do custo <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="descricao"
+                  placeholder="Ex: Passagem de ônibus, Almoço, etc."
+                  [class.is-invalid]="custoForm.get('descricao')?.invalid && custoForm.get('descricao')?.touched">
+                <div class="invalid-feedback" *ngIf="custoForm.get('descricao')?.invalid && custoForm.get('descricao')?.touched">
+                  A descrição é obrigatória
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  <span class="material-icons">attach_money</span>
+                  Valor <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-text">R$</span>
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="valorDisplay"
+                    placeholder="0,00"
+                    (input)="formatarValor($event)"
+                    (blur)="formatarValorCompleto()"
+                    [class.is-invalid]="custoForm.get('valor')?.invalid && custoForm.get('valor')?.touched">
+                </div>
+                <div class="invalid-feedback d-block" *ngIf="custoForm.get('valor')?.invalid && custoForm.get('valor')?.touched">
+                  O valor é obrigatório e deve ser maior que zero
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">
+                  <span class="material-icons">event</span>
+                  Data de pagamento <span class="text-danger">*</span>
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="dataPagamento"
+                  [class.is-invalid]="custoForm.get('dataPagamento')?.invalid && custoForm.get('dataPagamento')?.touched">
+                <div class="invalid-feedback" *ngIf="custoForm.get('dataPagamento')?.invalid && custoForm.get('dataPagamento')?.touched">
+                  A data é obrigatória
+                </div>
+              </div>
+
+              <div class="col-md-12 mb-3">
+                <label class="form-label">
+                  <span class="material-icons">attach_file</span>
+                  Anexar Comprovante
+                </label>
+                <input
+                  type="file"
+                  class="form-control"
+                  (change)="onFileSelected($event)"
+                  accept=".pdf,.jpg,.jpeg,.png">
+                <small class="text-muted">Formatos aceitos: PDF, JPG, PNG (máx. 5MB)</small>
+              </div>
+
+              <div class="col-12">
+                <div class="d-flex gap-2 justify-content-end">
+                  <button type="button" class="btn btn-outline-secondary" (click)="resetForm()" [disabled]="loading">
+                    <span class="material-icons">cancel</span>
+                    Limpar
+                  </button>
+                  <button type="submit" class="btn btn-primary" [disabled]="custoForm.invalid || loading">
+                    <span class="material-icons">save</span>
+                    {{ loading ? 'Salvando...' : 'Adicionar Custo' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Mensagem de Sucesso/Erro -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        <span class="material-icons">check_circle</span>
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        <span class="material-icons">error</span>
+        {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Sidebar DIREITA - Custos do Mês -->
+  <aside class="sidebar-right">
+    <h6 class="sidebar-title">
+      <span class="material-icons">calendar_month</span>
+      Custos do Mês
+    </h6>
+
+    <div class="month-selector mb-3">
+      <select class="form-select form-select-sm">
+        <option>Dezembro</option>
+        <option>Novembro</option>
+        <option>Outubro</option>
+      </select>
+      <select class="form-select form-select-sm">
+        <option>2025</option>
+        <option>2024</option>
+      </select>
+    </div>
+
+    <div *ngIf="loadingCustos" class="text-center py-3">
+      <div class="spinner-border spinner-border-sm text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+    </div>
+
+    <div *ngIf="!loadingCustos && meusCustos.length === 0" class="text-center text-muted py-3">
+      <small>Nenhum custo registrado este mês</small>
+    </div>
+
+    <div *ngIf="!loadingCustos && meusCustos.length > 0" class="custos-list">
+      <div *ngFor="let custo of meusCustos" class="custo-item">
+        <div class="custo-header">
+          <span class="custo-tema">{{ custo.temaCustoNome }}</span>
+          <span class="custo-date">{{ formatDate(custo.dataPagamento) }}</span>
+        </div>
+        <div class="custo-body">
+          <p class="custo-descricao">{{ custo.descricao }}</p>
+          <p class="custo-valor">{{ formatCurrency(custo.valor) }}</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>

@@ -27,7 +27,7 @@
           >
             <a class="nav-link text-dark" [routerLink]="['/']">Home</a>
           </li>
-          
+
           <!-- Opções para Gestor -->
           <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isGestor">
             <a class="nav-link text-dark" [routerLink]="['/dashboard']">
@@ -39,7 +39,12 @@
               <i class="bi bi-tags"></i> Gerenciar Temas
             </a>
           </li>
-          
+          <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="isGestor">
+            <a class="nav-link text-dark" [routerLink]="['/gerenciar-funcionarios']">
+              <i class="bi bi-people"></i> Gerenciar Funcionários
+            </a>
+          </li>
+
           <!-- Opções para Funcionário -->
           <li class="nav-item" [routerLinkActive]="['link-active']" *ngIf="!isGestor">
             <a class="nav-link text-dark" [routerLink]="['/cadastrar-custos']">

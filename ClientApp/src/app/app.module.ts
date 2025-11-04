@@ -13,8 +13,10 @@ import { LoginComponent } from './login/login.component';
 import { GerenciarTemasComponent } from './gerenciar-temas/gerenciar-temas.component';
 import { CadastrarCustosComponent } from './cadastrar-custos/cadastrar-custos.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { GerenciarFuncionariosComponent } from './gerenciar-funcionarios/gerenciar-funcionarios.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthGuard } from './guards/auth.guard';
+import { MeusCustosComponent } from './meus-custos/meus-custos.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +28,9 @@ import { AuthGuard } from './guards/auth.guard';
     LoginComponent,
     GerenciarTemasComponent,
     CadastrarCustosComponent,
-    DashboardComponent
+    DashboardComponent,
+    GerenciarFuncionariosComponent,
+    MeusCustosComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -35,13 +39,15 @@ import { AuthGuard } from './guards/auth.guard';
     ReactiveFormsModule,
     RouterModule.forRoot([
       { path: 'login', component: LoginComponent },
-      { path: '', component: HomeComponent, pathMatch: 'full', canActivate: [AuthGuard] },
-      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-      { path: 'gerenciar-temas', component: GerenciarTemasComponent, canActivate: [AuthGuard] },
-      { path: 'cadastrar-custos', component: CadastrarCustosComponent, canActivate: [AuthGuard] },
+      { path: '', redirectTo: '/login', pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
+      { path: 'meus-custos', component: MeusCustosComponent, canActivate: [AuthGuard], data: { role: 'funcionario' } },
+      { path: 'gerenciar-temas', component: GerenciarTemasComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
+      { path: 'gerenciar-funcionarios', component: GerenciarFuncionariosComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
+      { path: 'cadastrar-custos', component: CadastrarCustosComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
       { path: 'counter', component: CounterComponent, canActivate: [AuthGuard] },
       { path: 'fetch-data', component: FetchDataComponent, canActivate: [AuthGuard] },
-      { path: '**', redirectTo: '' }
+      { path: '**', redirectTo: '/login' }
     ])
   ],
   providers: [

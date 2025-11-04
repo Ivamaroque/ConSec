@@ -20,9 +20,16 @@ export class AuthGuard implements CanActivate {
       if (requiredRole) {
         const user = this.authService.getCurrentUser();
         if (user?.cargo !== requiredRole) {
-          // Se não tiver o cargo necessário, redireciona para home
-          this.router.navigate(['/']);
-          return false;
+          // Se for gestor tentando acessar rota de funcionário, redireciona para dashboard
+          if (user?.cargo === 'gestor') {
+            this.router.navigate(['/dashboard']);
+            return false;
+          }
+          // Se for funcionário tentando acessar rota de gestor, redireciona para meus-custos
+          if (user?.cargo === 'funcionario') {
+            this.router.navigate(['/meus-custos']);
+            return false;
+          }
         }
       }
 

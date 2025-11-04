@@ -72,7 +72,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(); // Serve arquivos da pasta wwwroot
+
+// Configuração específica para servir arquivos de upload
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads")),
+    RequestPath = "/uploads"
+});
+
 app.UseRouting();
 
 // ===== USAR CORS, AUTENTICAÇÃO E AUTORIZAÇÃO =====
