@@ -23,6 +23,11 @@ export class MeusCustosComponent implements OnInit {
   usuarioNome = '';
   setorNumero = 2; // Pode vir do backend
 
+  // Autocomplete
+  descricoesUnicas: string[] = [];
+  descricoesFiltradas: string[] = [];
+  mostrarAutocomplete = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
@@ -42,7 +47,6 @@ export class MeusCustosComponent implements OnInit {
     this.custoForm = this.formBuilder.group({
       descricao: ['', Validators.required],
       valor: ['', [Validators.required, Validators.min(0.01)]],
-      valorDisplay: [''], // Campo para exibição formatada
       dataPagamento: [dataHoje, Validators.required], // Data de hoje como padrão
       temaCustoId: ['']
     });
@@ -54,7 +58,8 @@ export class MeusCustosComponent implements OnInit {
   loadTemas(): void {
     this.temaCustoService.getAll().subscribe({
       next: (data) => {
-        this.temas = data;
+        // Ordena os temas por nome em ordem alfabética
+        this.temas = data.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
       },
       error: (error) => {
         console.error('Erro ao carregar temas', error);
@@ -69,6 +74,7 @@ export class MeusCustosComponent implements OnInit {
     this.custoService.getMyCustos().subscribe({
       next: (data: CustoResponse[]) => {
         this.meusCustos = data;
+        this.atualizarDescricoesUnicas(data);
         this.loadingCustos = false;
       },
       error: (error: any) => {
@@ -76,6 +82,44 @@ export class MeusCustosComponent implements OnInit {
         this.loadingCustos = false;
       }
     });
+  }
+
+  atualizarDescricoesUnicas(custos: CustoResponse[]): void {
+    // Extrai descrições únicas dos custos anteriores
+    const descricoesSet = new Set<string>();
+    custos.forEach(custo => {
+      if (custo.descricao && custo.descricao.trim() !== '') {
+        descricoesSet.add(custo.descricao.trim());
+      }
+    });
+    this.descricoesUnicas = Array.from(descricoesSet).sort();
+  }
+
+  onDescricaoInput(event: any): void {
+    const valor = event.target.value.toLowerCase().trim();
+
+    if (valor.length > 0) {
+      this.descricoesFiltradas = this.descricoesUnicas.filter(desc =>
+        desc.toLowerCase().includes(valor)
+      ).slice(0, 5); // Limita a 5 sugestões
+      this.mostrarAutocomplete = this.descricoesFiltradas.length > 0;
+    } else {
+      this.mostrarAutocomplete = false;
+      this.descricoesFiltradas = [];
+    }
+  }
+
+  selecionarDescricao(descricao: string): void {
+    this.custoForm.patchValue({ descricao });
+    this.mostrarAutocomplete = false;
+    this.descricoesFiltradas = [];
+  }
+
+  fecharAutocomplete(): void {
+    setTimeout(() => {
+      this.mostrarAutocomplete = false;
+      this.descricoesFiltradas = [];
+    }, 200);
   }
 
   selecionarTema(tema: TemaCustoResponse): void {
@@ -107,7 +151,7 @@ export class MeusCustosComponent implements OnInit {
 
     const custoDto: CreateCustoDto = {
       descricao: this.custoForm.value.descricao,
-      valor: parseFloat(this.custoForm.value.valor),
+      valor: this.custoForm.value.valor, // Já vem como número da diretiva
       data: this.custoForm.value.dataPagamento,
       temaCustoId: this.temaSelecionado.id,
       tipo: 'unico'
@@ -146,7 +190,7 @@ export class MeusCustosComponent implements OnInit {
     const dataHoje = hoje.toISOString().split('T')[0];
 
     if (this.temaSelecionado) {
-      this.custoForm.patchValue({ 
+      this.custoForm.patchValue({
         temaCustoId: this.temaSelecionado.id,
         dataPagamento: dataHoje
       });

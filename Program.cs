@@ -5,8 +5,14 @@ using ConSec.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ===== CONFIGURAÇÃO DE CULTURA PARA PARSING CORRETO DE DECIMAIS =====
+var cultureInfo = new CultureInfo("en-US");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

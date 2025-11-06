@@ -34,12 +34,19 @@ namespace ConSec.Controllers
 
             var userId = int.Parse(userIdClaim);
 
-            var query = _context.TemasCusto.Include(t => t.Usuario).AsQueryable();
+            var query = _context.TemasCusto
+                .Include(t => t.Usuario)
+                .Include(t => t.TemaCustoUsuarios)
+                    .ThenInclude(tu => tu.Usuario)
+                .AsQueryable();
 
-            // Funcionários só veem seus próprios temas
+            // Funcionários só veem seus próprios temas (nova lógica com relacionamento muitos-para-muitos)
             if (userRole == "funcionario")
             {
-                query = query.Where(t => t.UsuarioId == userId);
+                query = query.Where(t => 
+                    t.UsuarioId == userId || // Compatibilidade com estrutura antiga
+                    t.TemaCustoUsuarios.Any(tu => tu.UsuarioId == userId) // Nova estrutura
+                );
             }
             // Gestor vê todos
 
@@ -52,7 +59,13 @@ namespace ConSec.Controllers
                     Cor = t.Cor,
                     Icone = t.Icone ?? "label",
                     UsuarioId = t.UsuarioId ?? 0,
-                    UsuarioNome = t.Usuario != null ? t.Usuario.Nome : "N/A"
+                    UsuarioNome = t.Usuario != null ? t.Usuario.Nome : "N/A",
+                    Usuarios = t.TemaCustoUsuarios.Select(tu => new UsuarioSimplificadoDto
+                    {
+                        Id = tu.Usuario.Id,
+                        Nome = tu.Usuario.Nome,
+                        Email = tu.Usuario.Email
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -94,17 +107,19 @@ namespace ConSec.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Verifica se o usuário existe
-            var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId);
-            if (usuario == null)
+            // Determina quais IDs de usuário usar (novo ou antigo formato)
+            var usuarioIds = dto.UsuarioIds ?? (dto.UsuarioId.HasValue ? new List<int> { dto.UsuarioId.Value } : new List<int>());
+
+            if (usuarioIds.Count == 0)
             {
-                return BadRequest(new { message = "Usuário não encontrado" });
+                return BadRequest(new { message = "Pelo menos um usuário deve ser selecionado" });
             }
 
-            // Verifica se já existe um tema com esse nome para esse usuário
-            if (await _context.TemasCusto.AnyAsync(t => t.Nome.ToLower() == dto.Nome.ToLower() && t.UsuarioId == dto.UsuarioId))
+            // Verifica se todos os usuários existem
+            var usuarios = await _context.Usuarios.Where(u => usuarioIds.Contains(u.Id)).ToListAsync();
+            if (usuarios.Count != usuarioIds.Count)
             {
-                return BadRequest(new { message = "Já existe um tema com esse nome para este usuário" });
+                return BadRequest(new { message = "Um ou mais usuários não foram encontrados" });
             }
 
             var tema = new TemaCusto
@@ -112,22 +127,46 @@ namespace ConSec.Controllers
                 Nome = dto.Nome,
                 Descricao = dto.Descricao,
                 Cor = dto.Cor,
-                Icone = dto.Icone ?? "label",
-                UsuarioId = dto.UsuarioId
+                Icone = dto.Icone ?? "label"
             };
 
             _context.TemasCusto.Add(tema);
             await _context.SaveChangesAsync();
 
+            // Adiciona relacionamentos na tabela intermediária
+            foreach (var usuarioId in usuarioIds)
+            {
+                var relacao = new TemaCustoUsuario
+                {
+                    TemaCustoId = tema.Id,
+                    UsuarioId = usuarioId
+                };
+                _context.TemasCustoUsuarios.Add(relacao);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Carrega o tema com os usuários para retornar
+            var temaComUsuarios = await _context.TemasCusto
+                .Include(t => t.TemaCustoUsuarios)
+                    .ThenInclude(tu => tu.Usuario)
+                .FirstAsync(t => t.Id == tema.Id);
+
             var response = new TemaCustoResponseDto
             {
-                Id = tema.Id,
-                Nome = tema.Nome,
-                Descricao = tema.Descricao,
-                Cor = tema.Cor,
-                Icone = tema.Icone ?? "label",
-                UsuarioId = tema.UsuarioId ?? 0,
-                UsuarioNome = usuario.Nome
+                Id = temaComUsuarios.Id,
+                Nome = temaComUsuarios.Nome,
+                Descricao = temaComUsuarios.Descricao,
+                Cor = temaComUsuarios.Cor,
+                Icone = temaComUsuarios.Icone ?? "label",
+                UsuarioId = usuarios.First().Id, // Compatibilidade
+                UsuarioNome = usuarios.First().Nome, // Compatibilidade
+                Usuarios = temaComUsuarios.TemaCustoUsuarios.Select(tu => new UsuarioSimplificadoDto
+                {
+                    Id = tu.Usuario.Id,
+                    Nome = tu.Usuario.Nome,
+                    Email = tu.Usuario.Email
+                }).ToList()
             };
 
             return CreatedAtAction(nameof(GetById), new { id = tema.Id }, response);
@@ -148,18 +187,13 @@ namespace ConSec.Controllers
                 return BadRequest(ModelState);
             }
 
-            var tema = await _context.TemasCusto.FindAsync(id);
+            var tema = await _context.TemasCusto
+                .Include(t => t.TemaCustoUsuarios)
+                .FirstOrDefaultAsync(t => t.Id == id);
 
             if (tema == null)
             {
                 return NotFound(new { message = "Tema de custo não encontrado" });
-            }
-
-            // Verifica se já existe outro tema com esse nome para o mesmo usuário
-            var usuarioIdToCheck = dto.UsuarioId ?? tema.UsuarioId;
-            if (await _context.TemasCusto.AnyAsync(t => t.Nome.ToLower() == dto.Nome.ToLower() && t.Id != id && t.UsuarioId == usuarioIdToCheck))
-            {
-                return BadRequest(new { message = "Já existe outro tema com esse nome para este usuário" });
             }
 
             tema.Nome = dto.Nome;
@@ -174,15 +208,38 @@ namespace ConSec.Controllers
             {
                 tema.Icone = dto.Icone;
             }
-            
-            if (dto.UsuarioId.HasValue)
+
+            // Atualiza relacionamentos com usuários se fornecido
+            if (dto.UsuarioIds != null && dto.UsuarioIds.Count > 0)
             {
-                // Verifica se o usuário existe
-                var usuario = await _context.Usuarios.FindAsync(dto.UsuarioId.Value);
-                if (usuario == null)
+                // Remove relacionamentos antigos
+                var relacionamentosAntigos = tema.TemaCustoUsuarios.ToList();
+                _context.TemasCustoUsuarios.RemoveRange(relacionamentosAntigos);
+
+                // Adiciona novos relacionamentos
+                foreach (var usuarioId in dto.UsuarioIds)
                 {
-                    return BadRequest(new { message = "Usuário não encontrado" });
+                    var relacao = new TemaCustoUsuario
+                    {
+                        TemaCustoId = tema.Id,
+                        UsuarioId = usuarioId
+                    };
+                    _context.TemasCustoUsuarios.Add(relacao);
                 }
+            }
+            else if (dto.UsuarioId.HasValue) // Compatibilidade com formato antigo
+            {
+                // Remove relacionamentos antigos
+                var relacionamentosAntigos = tema.TemaCustoUsuarios.ToList();
+                _context.TemasCustoUsuarios.RemoveRange(relacionamentosAntigos);
+
+                // Adiciona novo relacionamento único
+                var relacao = new TemaCustoUsuario
+                {
+                    TemaCustoId = tema.Id,
+                    UsuarioId = dto.UsuarioId.Value
+                };
+                _context.TemasCustoUsuarios.Add(relacao);
                 tema.UsuarioId = dto.UsuarioId.Value;
             }
 

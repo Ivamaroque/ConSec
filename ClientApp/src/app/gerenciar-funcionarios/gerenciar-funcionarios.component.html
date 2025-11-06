@@ -1,33 +1,6 @@
 <div class="dashboard-layout">
   <!-- Sidebar ESQUERDA - Menu de Navegação -->
-  <aside class="sidebar-left">
-    <div class="sidebar-logo">
-      <span class="material-icons">account_balance_wallet</span>
-      <h5>ConSec</h5>
-    </div>
-
-    <nav class="sidebar-nav">
-      <a href="/dashboard" class="nav-item">
-        <span class="material-icons">dashboard</span>
-        <span>Dashboard</span>
-      </a>
-      <a href="/gerenciar-temas" class="nav-item">
-        <span class="material-icons">label</span>
-        <span>Gerenciar Temas</span>
-      </a>
-      <a href="/gerenciar-funcionarios" class="nav-item active">
-        <span class="material-icons">people</span>
-        <span>Gerenciar Funcionários</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <a (click)="logout()" class="nav-item logout-btn">
-        <span class="material-icons">logout</span>
-        <span>Sair</span>
-      </a>
-    </div>
-  </aside>
+  <app-sidebar activePage="funcionarios"></app-sidebar>
 
   <!-- Área CENTRAL - Conteúdo Principal -->
   <main class="main-content">

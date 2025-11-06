@@ -1,0 +1,284 @@
+<div class="page-container">
+  <app-sidebar [activePage]="'visualizar-custos'"></app-sidebar>
+
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h2>
+            <span class="material-icons">receipt_long</span>
+            Visualizar Custos
+          </h2>
+          <p class="text-muted">Visualize todos os custos cadastrados no sistema</p>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-card">
+        <h3 class="filters-title">
+          <span class="material-icons">filter_list</span>
+          Filtros
+        </h3>
+        
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="tema">Tema</label>
+            <select id="tema" class="form-control" [(ngModel)]="temaSelecionadoId">
+              <option [value]="null">Todos os temas</option>
+              <option *ngFor="let tema of temas" [value]="tema.id">
+                {{ tema.nome }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="dataInicio">Data Início</label>
+            <input type="date" id="dataInicio" class="form-control" [(ngModel)]="dataInicio">
+          </div>
+
+          <div class="form-group">
+            <label for="dataFim">Data Fim</label>
+            <input type="date" id="dataFim" class="form-control" [(ngModel)]="dataFim">
+          </div>
+        </div>
+
+        <div class="filters-actions">
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            <span class="material-icons">search</span>
+            Aplicar Filtros
+          </button>
+          <button class="btn btn-secondary" (click)="limparFiltros()">
+            <span class="material-icons">clear</span>
+            Limpar
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Carregando custos...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        <span class="material-icons">error</span>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Success -->
+      <div *ngIf="successMessage" class="alert alert-success">
+        <span class="material-icons">check_circle</span>
+        {{ successMessage }}
+      </div>
+
+      <!-- Tabela de Custos -->
+      <div *ngIf="!loading && !errorMessage" class="table-card">
+        <div class="table-header">
+          <h3>
+            <span class="material-icons">list_alt</span>
+            Custos Cadastrados
+          </h3>
+          <span class="badge">{{ custos.length }} registro(s)</span>
+        </div>
+
+        <div *ngIf="custos.length === 0" class="empty-state">
+          <span class="material-icons">inbox</span>
+          <p>Nenhum custo encontrado</p>
+          <small>Tente ajustar os filtros ou adicione novos custos</small>
+        </div>
+
+        <div *ngIf="custos.length > 0" class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tema</th>
+                <th>Descrição</th>
+                <th>Funcionário</th>
+                <th>Valor</th>
+                <th>Comentário</th>
+                <th class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let custo of custos">
+                <td>
+                  <span class="date-badge">
+                    {{ formatDate(custo.dataPagamento) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="tema-badge" [style.background-color]="custo.temaCustoCor || '#6c757d'">
+                    {{ custo.temaCustoNome }}
+                  </div>
+                </td>
+                <td>
+                  <strong>{{ custo.descricao }}</strong>
+                </td>
+                <td>
+                  <div class="user-info-cell">
+                    <span class="material-icons">person</span>
+                    <div>
+                      <div class="user-name">{{ custo.usuarioNome }}</div>
+                      <div class="user-email">{{ custo.usuarioEmail }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="valor-badge">
+                    {{ formatCurrency(custo.valor) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="comentario-text" *ngIf="custo.comentario">
+                    {{ custo.comentario }}
+                  </span>
+                  <span class="text-muted" *ngIf="!custo.comentario">
+                    <em>Sem comentário</em>
+                  </span>
+                </td>
+                <td>
+                  <div class="actions-cell">
+                    <button 
+                      *ngIf="custo.arquivoAnexoPath" 
+                      class="btn-action btn-download" 
+                      (click)="downloadComprovante(custo)"
+                      title="Baixar Comprovante">
+                      <span class="material-icons">download</span>
+                    </button>
+                    <button 
+                      class="btn-action btn-edit" 
+                      (click)="openEditModal(custo)"
+                      title="Editar">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button 
+                      class="btn-action btn-delete" 
+                      (click)="openDeleteModal(custo)"
+                      title="Excluir">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de Edição -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <span class="material-icons">edit</span>
+          Editar Custo
+        </h3>
+        <button class="btn-close" (click)="closeEditModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="editDescricao">Descrição *</label>
+          <input 
+            type="text" 
+            id="editDescricao" 
+            class="form-control" 
+            [(ngModel)]="custoEditForm.descricao"
+            required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editValor">Valor *</label>
+            <input 
+              type="text" 
+              id="editValor" 
+              class="form-control" 
+              [(ngModel)]="custoEditForm.valor"
+              appCurrencyMask
+              required>
+          </div>
+
+          <div class="form-group">
+            <label for="editData">Data *</label>
+            <input 
+              type="date" 
+              id="editData" 
+              class="form-control" 
+              [(ngModel)]="custoEditForm.dataPagamento"
+              required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editTema">Tema *</label>
+          <select 
+            id="editTema" 
+            class="form-control" 
+            [(ngModel)]="custoEditForm.temaCustoId"
+            required>
+            <option *ngFor="let tema of temas" [value]="tema.id">
+              {{ tema.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="editComentario">Comentário</label>
+          <textarea 
+            id="editComentario" 
+            class="form-control" 
+            rows="3"
+            [(ngModel)]="custoEditForm.comentario"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
+        <button class="btn btn-primary" (click)="saveEdit()">
+          <span class="material-icons">save</span>
+          Salvar Alterações
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Exclusão -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="modal-content modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>
+          <span class="material-icons">warning</span>
+          Confirmar Exclusão
+        </h3>
+        <button class="btn-close" (click)="closeDeleteModal()">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>Tem certeza que deseja excluir o custo:</p>
+        <div class="delete-info">
+          <strong>{{ custoSelecionado?.descricao }}</strong>
+          <span class="valor-badge">{{ formatCurrency(custoSelecionado?.valor || 0) }}</span>
+        </div>
+        <p class="text-danger"><strong>Esta ação não pode ser desfeita!</strong></p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeDeleteModal()">Cancelar</button>
+        <button class="btn btn-danger" (click)="confirmDelete()">
+          <span class="material-icons">delete</span>
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

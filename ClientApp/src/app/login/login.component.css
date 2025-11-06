@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #121B4F 0%, #121B4F 100%);
   padding: 20px;
 }
 
@@ -58,7 +58,7 @@
 
 .form-control:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #121B4F;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
@@ -89,7 +89,7 @@
 .btn-login {
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #121B4F 0%, #121B4F 100%);
   color: white;
   border: none;
   border-radius: 8px;

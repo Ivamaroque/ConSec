@@ -46,12 +46,11 @@
               type="text"
               class="form-control"
               id="valor"
-              [value]="formatValueDisplay()"
-              (keydown)="handleValueKeydown($event)"
+              [(ngModel)]="custoForm.valor"
               name="valor"
+              appCurrencyMask
               required
-              placeholder="R$ 0,00"
-              inputmode="numeric">
+              placeholder="0,00">
           </div>
 
           <div class="col-md-3 mb-3">

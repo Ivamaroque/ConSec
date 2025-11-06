@@ -1,9 +1,77 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* ============================================
+   CURSOR POINTER PARA ELEMENTOS CLICÁVEIS
+   ============================================ */
+
+/* Botões */
+button,
+.btn,
+[type="button"],
+[type="submit"],
+[role="button"] {
+  cursor: pointer !important;
+}
+
+/* Links */
+a {
+  cursor: pointer !important;
+}
+
+/* Elementos interativos */
+[onclick],
+.clickable,
+.pointer {
+  cursor: pointer !important;
+}
+
+/* Inputs e selects */
+select,
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"],
+.form-check-input,
+.form-select {
+  cursor: pointer !important;
+}
+
+/* Labels de checkbox e radio */
+label.form-check-label,
+label[for] {
+  cursor: pointer !important;
+}
+
+/* Ícones clicáveis */
+.material-icons.clickable,
+i.clickable {
+  cursor: pointer !important;
+}
+
+/* Cards clicáveis */
+.card.clickable {
+  cursor: pointer !important;
+}
+
+/* Linhas de tabela clicáveis */
+tr.clickable,
+tbody tr:hover {
+  cursor: pointer;
+}
+
+/* Badges e chips */
+.badge,
+.chip {
+  cursor: default;
+}
+
+.badge.clickable,
+.chip.clickable {
+  cursor: pointer !important;
+}
+
 /* Alinhamento global dos ícones do Material Icons */
 .material-icons {
   vertical-align: middle;
-  margin-right: 8px;
 }
 
 /* Remover margem em ícones dentro do seletor de ícones */
@@ -16,7 +84,6 @@ button .material-icons,
 .btn .material-icons,
 a .material-icons {
   vertical-align: middle;
-  margin-right: 6px;
   font-size: 20px;
   line-height: 1;
 }
@@ -40,4 +107,68 @@ code {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
+}
+
+/* ============================================
+   LAYOUT COMUM PARA TODAS AS PÁGINAS
+   ============================================ */
+
+/* Layout com Sidebar Left + Main Content */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+/* Área CENTRAL - Conteúdo Principal */
+.main-content {
+  flex: 1;
+  margin-left: 250px;
+  padding: 30px;
+  overflow-y: auto;
+  background: #f5f7fa;
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ============================================
+   IDENTIDADE VISUAL - COR PRIMÁRIA #121B4F
+   ============================================ */
+
+/* Ícones primários */
+.page-header h2 .material-icons {
+  color: #121B4F !important;
+}
+
+/* Botões primários */
+.btn-primary {
+  background-color: #121B4F !important;
+  border-color: #121B4F !important;
+}
+
+.btn-primary:hover {
+  background-color: #0d1438 !important;
+  border-color: #0d1438 !important;
+}
+
+/* Links e elementos interativos */
+a:not(.btn):not(.nav-item) {
+  color: #121B4F;
+}
+
+a:not(.btn):not(.nav-item):hover {
+  color: #0d1438;
+}
+
+/* Cards e elementos destacados */
+.total-card {
+  background: #121B4F !important;
+}
+
+/* Badges e tags */
+.badge-primary {
+  background-color: #121B4F !important;
 }

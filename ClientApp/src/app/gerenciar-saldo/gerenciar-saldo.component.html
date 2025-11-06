@@ -1,0 +1,227 @@
+<div class="dashboard-layout">
+  <!-- Sidebar ESQUERDA - Menu de Navegação -->
+  <app-sidebar activePage="saldo"></app-sidebar>
+
+  <!-- Área CENTRAL - Conteúdo Principal -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h2><span class="material-icons">account_balance</span> Gerenciar Saldo</h2>
+          <p class="text-muted">Adicione e gerencie as entradas de saldo disponível</p>
+        </div>
+        <button class="btn btn-primary btn-add" (click)="openCreateForm()" *ngIf="!showForm">
+          <span class="material-icons">add_circle</span> Adicionar Saldo
+        </button>
+      </div>
+
+      <!-- Card de Total -->
+      <div class="total-card">
+        <div class="total-icon">
+          <span class="material-icons">account_balance_wallet</span>
+        </div>
+        <div class="total-info">
+          <h6>Total Disponível</h6>
+          <h3>{{ formatCurrency(totalSaldo) }}</h3>
+        </div>
+      </div>
+
+      <!-- Mensagens -->
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span class="material-icons">check_circle</span> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span class="material-icons">error</span> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-section mb-4" *ngIf="!showForm">
+        <h6 class="mb-3"><span class="material-icons">filter_list</span> Filtros</h6>
+        <div class="d-flex gap-3 align-items-end">
+          <div>
+            <label class="form-label small">Data Início</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filtros.dataInicio">
+          </div>
+          <div>
+            <label class="form-label small">Data Fim</label>
+            <input type="date" class="form-control form-control-sm" [(ngModel)]="filtros.dataFim">
+          </div>
+          <button class="btn btn-primary btn-sm" (click)="aplicarFiltros()" [disabled]="loading">
+            <span class="material-icons">search</span> Filtrar
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" (click)="limparFiltros()" [disabled]="loading">
+            <span class="material-icons">cancel</span> Limpar
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulário -->
+      <div *ngIf="showForm" class="form-card mb-4">
+        <div class="form-card-header">
+          <h5><span class="material-icons">{{ editMode ? 'edit' : 'add_circle' }}</span> {{ editMode ? 'Editar Saldo' : 'Adicionar Novo Saldo' }}</h5>
+          <button class="btn-close-form" (click)="closeForm()" title="Fechar">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+        <div class="form-card-body">
+          <form (ngSubmit)="saveSaldo()">
+            <div class="row g-3">
+              <div class="col-md-12">
+                <label for="descricao" class="form-label">
+                  <span class="material-icons">description</span> Descrição *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="descricao"
+                  [(ngModel)]="saldoForm.descricao"
+                  name="descricao"
+                  required
+                  maxlength="200"
+                  placeholder="Ex: Repasse mensal, Verba adicional...">
+              </div>
+
+              <div class="col-md-6">
+                <label for="valor" class="form-label">
+                  <span class="material-icons">attach_money</span> Valor (R$) *
+                </label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="valor"
+                  [(ngModel)]="saldoForm.valor"
+                  name="valor"
+                  appCurrencyMask
+                  required
+                  placeholder="0,00">
+              </div>
+
+              <div class="col-md-6">
+                <label for="dataEntrada" class="form-label">
+                  <span class="material-icons">event</span> Data de Entrada *
+                </label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="dataEntrada"
+                  [(ngModel)]="saldoForm.dataEntrada"
+                  name="dataEntrada"
+                  required>
+              </div>
+
+              <div class="col-md-12">
+                <label for="arquivo" class="form-label">
+                  <span class="material-icons">attach_file</span> Comprovante (opcional)
+                </label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="arquivo"
+                  (change)="onFileSelected($event)"
+                  accept=".pdf,.jpg,.jpeg,.png">
+                <small class="form-text text-muted">
+                  <span class="material-icons">info</span> Formatos aceitos: PDF, JPG, PNG
+                </small>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-success" [disabled]="loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                <span class="material-icons">{{ editMode ? 'check_circle' : 'add_circle' }}</span> 
+                {{ editMode ? 'Atualizar' : 'Adicionar Saldo' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeForm()" [disabled]="loading">
+                <span class="material-icons">close</span> Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading && !showForm" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="mt-2 text-muted">Carregando saldos...</p>
+      </div>
+
+      <!-- Lista de Saldos -->
+      <div *ngIf="!loading && !showForm && saldos.length === 0" class="empty-state">
+        <span class="material-icons">inbox</span>
+        <h5>Nenhum saldo cadastrado</h5>
+        <p>Clique em "Adicionar Saldo" para registrar a primeira entrada.</p>
+      </div>
+
+      <div *ngIf="!loading && !showForm && saldos.length > 0" class="saldos-list">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th class="text-end">Valor</th>
+                <th>Comprovante</th>
+                <th>Cadastrado por</th>
+                <th class="text-center">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let saldo of saldos">
+                <td>
+                  <span class="material-icons">event</span>
+                  {{ formatDate(saldo.dataEntrada) }}
+                </td>
+                <td>
+                  <strong>{{ saldo.descricao }}</strong>
+                </td>
+                <td class="text-end">
+                  <span class="valor-positivo">{{ formatCurrency(saldo.valor) }}</span>
+                </td>
+                <td>
+                  <a *ngIf="saldo.arquivoAnexoPath" 
+                     (click)="downloadComprovante(saldo)" 
+                     class="comprovante-link">
+                    <span class="material-icons">insert_drive_file</span>
+                    Baixar
+                  </a>
+                  <span *ngIf="!saldo.arquivoAnexoPath" class="text-muted">
+                    <span class="material-icons">description</span>
+                    Sem arquivo
+                  </span>
+                </td>
+                <td>
+                  <span class="material-icons">person</span>
+                  {{ saldo.usuarioNome }}
+                </td>
+                <td class="text-center">
+                  <div class="action-buttons">
+                    <button
+                      class="btn btn-sm btn-warning"
+                      (click)="openEditForm(saldo)"
+                      [disabled]="loading"
+                      title="Editar">
+                      <span class="material-icons">edit</span>
+                    </button>
+                    <button
+                      class="btn btn-sm btn-danger"
+                      (click)="deleteSaldo(saldo.id, saldo.descricao)"
+                      [disabled]="loading"
+                      title="Excluir">
+                      <span class="material-icons">delete</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

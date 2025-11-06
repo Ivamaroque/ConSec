@@ -7,8 +7,10 @@
     </div>
 
     <div class="user-info">
-      <span class="material-icons">account_circle</span>
-      <div>
+      <div class="user-avatar">
+        <span class="material-icons">account_circle</span>
+      </div>
+      <div class="user-details">
         <p class="user-name">Bem-vindo, {{ usuarioNome }}</p>
         <small class="user-role">Setor {{ setorNumero }}</small>
       </div>
@@ -17,7 +19,7 @@
     <nav class="sidebar-nav">
       <div class="nav-section-title">
         <span class="material-icons">label</span>
-        <span>Temas Disponíveis</span>
+        TEMAS DISPONÍVEIS
       </div>
 
       <a *ngFor="let tema of temas"
@@ -74,12 +76,27 @@
                   <span class="material-icons">description</span>
                   Descrição do custo <span class="text-danger">*</span>
                 </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  formControlName="descricao"
-                  placeholder="Ex: Passagem de ônibus, Almoço, etc."
-                  [class.is-invalid]="custoForm.get('descricao')?.invalid && custoForm.get('descricao')?.touched">
+                <div class="autocomplete-wrapper">
+                  <input
+                    type="text"
+                    class="form-control"
+                    formControlName="descricao"
+                    placeholder="Ex: Passagem de ônibus, Almoço, etc."
+                    (input)="onDescricaoInput($event)"
+                    (blur)="fecharAutocomplete()"
+                    [class.is-invalid]="custoForm.get('descricao')?.invalid && custoForm.get('descricao')?.touched">
+                  
+                  <!-- Lista de sugestões do autocomplete -->
+                  <div class="autocomplete-list" *ngIf="mostrarAutocomplete && descricoesFiltradas.length > 0">
+                    <div 
+                      *ngFor="let descricao of descricoesFiltradas" 
+                      class="autocomplete-item"
+                      (mousedown)="selecionarDescricao(descricao)">
+                      <span class="material-icons">history</span>
+                      {{ descricao }}
+                    </div>
+                  </div>
+                </div>
                 <div class="invalid-feedback" *ngIf="custoForm.get('descricao')?.invalid && custoForm.get('descricao')?.touched">
                   A descrição é obrigatória
                 </div>
@@ -90,18 +107,14 @@
                   <span class="material-icons">attach_money</span>
                   Valor <span class="text-danger">*</span>
                 </label>
-                <div class="input-group">
-                  <span class="input-group-text">R$</span>
-                  <input
-                    type="text"
-                    class="form-control"
-                    formControlName="valorDisplay"
-                    placeholder="0,00"
-                    (input)="formatarValor($event)"
-                    (blur)="formatarValorCompleto()"
-                    [class.is-invalid]="custoForm.get('valor')?.invalid && custoForm.get('valor')?.touched">
-                </div>
-                <div class="invalid-feedback d-block" *ngIf="custoForm.get('valor')?.invalid && custoForm.get('valor')?.touched">
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="valor"
+                  appCurrencyMask
+                  placeholder="R$ 0,00"
+                  [class.is-invalid]="custoForm.get('valor')?.invalid && custoForm.get('valor')?.touched">
+                <div class="invalid-feedback" *ngIf="custoForm.get('valor')?.invalid && custoForm.get('valor')?.touched">
                   O valor é obrigatório e deve ser maior que zero
                 </div>
               </div>

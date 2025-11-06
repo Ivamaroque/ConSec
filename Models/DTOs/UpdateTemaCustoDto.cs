@@ -20,6 +20,8 @@ namespace ConSec.Models.DTOs
         [StringLength(50, ErrorMessage = "O ícone deve ter no máximo 50 caracteres")]
         public string? Icone { get; set; }
 
-        public int? UsuarioId { get; set; }
+        public int? UsuarioId { get; set; } // DEPRECATED - mantido para compatibilidade
+
+        public List<int>? UsuarioIds { get; set; } // NOVO - lista de IDs de usuários
     }
 }

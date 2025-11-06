@@ -1,0 +1,36 @@
+<aside class="sidebar-left">
+  <div class="sidebar-logo">
+    <span class="material-icons">account_balance_wallet</span>
+    <h5>ConSec</h5>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/dashboard" class="nav-item" [class.active]="activePage === 'dashboard'">
+      <span class="material-icons">dashboard</span>
+      <span>Dashboard</span>
+    </a>
+    <a href="/visualizar-custos" class="nav-item" [class.active]="activePage === 'visualizar-custos'">
+      <span class="material-icons">receipt_long</span>
+      <span>Visualizar Custos</span>
+    </a>
+    <a href="/gerenciar-temas" class="nav-item" [class.active]="activePage === 'temas'">
+      <span class="material-icons">label</span>
+      <span>Gerenciar Temas</span>
+    </a>
+    <a href="/gerenciar-funcionarios" class="nav-item" [class.active]="activePage === 'funcionarios'">
+      <span class="material-icons">people</span>
+      <span>Gerenciar Funcionários</span>
+    </a>
+    <a href="/gerenciar-saldo" class="nav-item" [class.active]="activePage === 'saldo'">
+      <span class="material-icons">account_balance</span>
+      <span>Gerenciar Saldo</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a (click)="logout()" class="nav-item logout-btn">
+      <span class="material-icons">logout</span>
+      <span>Sair</span>
+    </a>
+  </div>
+</aside>

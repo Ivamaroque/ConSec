@@ -1,33 +1,6 @@
 <div class="dashboard-layout">
   <!-- Sidebar ESQUERDA - Menu de Navegação -->
-  <aside class="sidebar-left">
-    <div class="sidebar-logo">
-      <span class="material-icons">account_balance_wallet</span>
-      <h5>ConSec</h5>
-    </div>
-
-    <nav class="sidebar-nav">
-      <a href="/dashboard" class="nav-item">
-        <span class="material-icons">dashboard</span>
-        <span>Dashboard</span>
-      </a>
-      <a href="/gerenciar-temas" class="nav-item active">
-        <span class="material-icons">label</span>
-        <span>Gerenciar Temas</span>
-      </a>
-      <a href="/gerenciar-funcionarios" class="nav-item">
-        <span class="material-icons">people</span>
-        <span>Gerenciar Funcionários</span>
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <a (click)="logout()" class="nav-item logout-btn">
-        <span class="material-icons">logout</span>
-        <span>Sair</span>
-      </a>
-    </div>
-  </aside>
+  <app-sidebar activePage="temas"></app-sidebar>
 
   <!-- Área CENTRAL - Conteúdo Principal -->
   <main class="main-content">
@@ -65,23 +38,7 @@
         <div class="form-card-body">
           <form (ngSubmit)="saveTema()">
             <div class="row g-3">
-              <div class="col-md-6">
-                <label for="funcionario" class="form-label">
-                  <span class="material-icons">account_circle</span> Funcionário *
-                </label>
-                <select
-                  class="form-select"
-                  id="funcionario"
-                  [(ngModel)]="temaForm.usuarioId"
-                  name="funcionario"
-                  required>
-                  <option [ngValue]="0" disabled>Selecione um funcionário</option>
-                  <option *ngFor="let func of funcionarios" [ngValue]="func.id">
-                    {{ func.nome }} ({{ func.email }})
-                  </option>
-                </select>
-              </div>
-
+              <!-- Linha 1: Nome do Tema + Início dos Funcionários -->
               <div class="col-md-6">
                 <label for="nome" class="form-label">
                   <span class="material-icons">label</span> Nome do Tema *
@@ -97,7 +54,32 @@
                   placeholder="Ex: Alimentação, Transporte, etc.">
               </div>
 
-              <div class="col-md-8">
+              <div class="col-md-6">
+                <label class="form-label">
+                  <span class="material-icons">people</span> Funcionários *
+                </label>
+                
+                <!-- Barra de pesquisa -->
+                <div class="search-box mb-2">
+                  <span class="material-icons">search</span>
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    [(ngModel)]="searchFuncionario"
+                    name="searchFuncionario"
+                    placeholder="Pesquisar funcionário...">
+                </div>
+
+                <!-- Contador de selecionados -->
+                <div class="selected-count mb-2">
+                  <span class="badge bg-primary">
+                    {{funcionariosSelecionados.length}} selecionado(s)
+                  </span>
+                </div>
+              </div>
+
+              <!-- Linha 2: Descrição + Lista de Funcionários -->
+              <div class="col-md-6">
                 <label for="descricao" class="form-label">
                   <span class="material-icons">description</span> Descrição
                 </label>
@@ -111,7 +93,32 @@
                   placeholder="Descrição opcional do tema"></textarea>
               </div>
 
-              <div class="col-md-4">
+              <div class="col-md-6">
+                <!-- Lista de checkboxes -->
+                <div class="funcionarios-checklist">
+                  <div 
+                    *ngFor="let funcionario of funcionariosFiltrados" 
+                    class="funcionario-checkbox-item"
+                    (click)="toggleFuncionario(funcionario.id)">
+                    <input 
+                      type="checkbox" 
+                      [checked]="isFuncionarioSelecionado(funcionario.id)"
+                      (click)="$event.stopPropagation()"
+                      (change)="toggleFuncionario(funcionario.id)">
+                    <label>
+                      <strong>{{funcionario.nome}}</strong>
+                      <small>{{funcionario.email}}</small>
+                    </label>
+                  </div>
+                  <div *ngIf="funcionariosFiltrados.length === 0" class="text-muted">
+                    Nenhum funcionário encontrado
+                  </div>
+                </div>
+              </div>
+
+              <!-- Linha 3: Cor do Tema -->
+              <!-- Linha 3: Cor do Tema + Ícone do Tema -->
+              <div class="col-md-6">
                 <label for="cor" class="form-label">
                   <span class="material-icons">palette</span> Cor do Tema *
                 </label>
@@ -132,13 +139,13 @@
                 </small>
               </div>
 
-              <div class="col-12">
+              <div class="col-md-6">
                 <label for="icone" class="form-label">
                   <span class="material-icons">emoji_symbols</span> Ícone do Tema *
                 </label>
                 <div class="icon-selector">
-                  <div 
-                    *ngFor="let icone of iconesDisponiveis" 
+                  <div
+                    *ngFor="let icone of iconesDisponiveis"
                     class="icon-option"
                     [class.selected]="temaForm.icone === icone.nome"
                     (click)="temaForm.icone = icone.nome"

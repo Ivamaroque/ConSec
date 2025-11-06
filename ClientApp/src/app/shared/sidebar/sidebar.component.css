@@ -1,0 +1,83 @@
+/* ============================================
+   SIDEBAR ESQUERDA
+   ============================================ */
+.sidebar-left {
+  width: 250px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #f0f0f0;
+  background: #121B4F;
+  color: white;
+}
+
+.sidebar-logo .material-icons {
+  font-size: 32px;
+}
+
+.sidebar-logo h5 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  color: #4a5568;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  font-weight: 500;
+}
+
+.nav-item:hover {
+  background: linear-gradient(90deg, rgba(18, 27, 79, 0.1) 0%, transparent 100%);
+  color: #121B4F;
+  border-left-color: #121B4F;
+}
+
+.nav-item.active {
+  background: linear-gradient(90deg, rgba(18, 27, 79, 0.15) 0%, transparent 100%);
+  color: #121B4F;
+  border-left-color: #121B4F;
+  font-weight: 600;
+}
+
+.nav-item .material-icons {
+  font-size: 24px;
+}
+
+.sidebar-footer {
+  border-top: 2px solid #f0f0f0;
+  padding: 12px 0;
+}
+
+.logout-btn {
+  color: #e53e3e;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(90deg, rgba(229, 62, 62, 0.1) 0%, transparent 100%);
+  border-left-color: #e53e3e;
+}

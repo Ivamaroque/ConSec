@@ -72,7 +72,8 @@ export class CustoService {
   createWithFile(custo: CreateCustoDto, arquivo?: File): Observable<CustoResponse> {
     const formData = new FormData();
     formData.append('descricao', custo.descricao);
-    formData.append('valor', custo.valor.toString());
+    // Garante que o valor seja enviado com ponto como separador decimal (cultura invariante)
+    formData.append('valor', custo.valor.toFixed(2));
     formData.append('dataPagamento', custo.data); // Corrigido: backend espera 'dataPagamento'
     formData.append('temaCustoId', custo.temaCustoId.toString());
     formData.append('tipo', custo.tipo || 'unico');

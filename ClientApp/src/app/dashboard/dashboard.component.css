@@ -167,31 +167,101 @@ table {
 /* Cards de Resumo */
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   margin-bottom: 24px;
 }
 
 .summary-card {
   background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  border-left: 4px solid #121B4F;
+}
+
+.summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.summary-card.saldo {
+  border-left-color: #121B4F;
+}
+
+.summary-card.custo {
+  border-left-color: #e74c3c;
+}
+
+.summary-card.disponivel.positivo {
+  border-left-color: #27ae60;
+}
+
+.summary-card.disponivel.alerta {
+  border-left-color: #f39c12;
+}
+
+.summary-card.disponivel.negativo {
+  border-left-color: #e74c3c;
+}
+
+.summary-card-icon {
+  width: 56px;
+  height: 56px;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.summary-card.saldo .summary-card-icon {
+  background: rgba(18, 27, 79, 0.1);
+  color: #121B4F;
+}
+
+.summary-card.custo .summary-card-icon {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.summary-card.disponivel.positivo .summary-card-icon {
+  background: rgba(39, 174, 96, 0.1);
+  color: #27ae60;
+}
+
+.summary-card.disponivel.alerta .summary-card-icon {
+  background: rgba(243, 156, 18, 0.1);
+  color: #f39c12;
+}
+
+.summary-card.disponivel.negativo .summary-card-icon {
+  background: rgba(231, 76, 60, 0.1);
+  color: #e74c3c;
+}
+
+.summary-card-content {
+  flex: 1;
 }
 
 .summary-card-header {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
   color: #7f8c8d;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   letter-spacing: 0.5px;
 }
 
 .summary-card-value {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
+  color: #2c3e50;
 }
 
 /* Seção de Filtros */
@@ -662,6 +732,40 @@ table {
   align-items: center;
 }
 
+/* Estilos para o gráfico de linha mensal */
+.line-chart-container {
+  min-height: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.line-chart-wrapper {
+  position: relative;
+  width: 100%;
+  height: 350px;
+}
+
+/* Seção de gráfico em largura total */
+.chart-section-full {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.chart-section-full h6 {
+  color: #2d3748;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-section-full .material-icons {
+  color: #121B4F;
+}
+
 .pie-chart-wrapper {
   position: relative;
   width: 100%;
@@ -675,12 +779,17 @@ table {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .bar-chart-wrapper {
   position: relative;
   width: 100%;
   height: 350px;
+}
+
+.bar-chart-wrapper canvas {
+  cursor: pointer;
 }
 
 .list-group-item {
@@ -911,4 +1020,99 @@ i {
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* Modal de Detalhes do Dia */
+.modal-medium {
+  max-width: 600px;
+}
+
+.day-detail-summary {
+  background: #121B4F;
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  margin-bottom: 24px;
+}
+
+.day-detail-total {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.day-detail-total .material-icons {
+  font-size: 48px;
+  opacity: 0.9;
+}
+
+.day-detail-total h4 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.day-detail-total small {
+  display: block;
+  opacity: 0.9;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.temas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tema-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.tema-item:hover {
+  background: #e9ecef;
+  transform: translateX(4px);
+}
+
+.tema-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.tema-color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.tema-details {
+  flex: 1;
+}
+
+.tema-details strong {
+  display: block;
+  color: #2d3748;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.tema-percentage {
+  font-size: 12px;
+  color: #718096;
+}
+
+.tema-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2d3748;
 }

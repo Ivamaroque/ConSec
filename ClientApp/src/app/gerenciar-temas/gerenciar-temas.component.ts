@@ -27,6 +27,10 @@ export class GerenciarTemasComponent implements OnInit {
     usuarioId: 0
   };
 
+  // Seleção múltipla de funcionários
+  funcionariosSelecionados: number[] = [];
+  searchFuncionario: string = '';
+
   // Lista de ícones disponíveis do Material Icons
   iconesDisponiveis = [
     { nome: 'label', descricao: 'Etiqueta' },
@@ -64,6 +68,19 @@ export class GerenciarTemasComponent implements OnInit {
   ngOnInit(): void {
     this.loadFuncionarios();
     this.loadTemas();
+  }
+
+  // Getter para filtrar funcionários
+  get funcionariosFiltrados(): UsuarioListDto[] {
+    if (!this.searchFuncionario || this.searchFuncionario.trim() === '') {
+      return this.funcionarios;
+    }
+    
+    const search = this.searchFuncionario.toLowerCase().trim();
+    return this.funcionarios.filter(f => 
+      f.nome.toLowerCase().includes(search) || 
+      f.email.toLowerCase().includes(search)
+    );
   }
 
   loadFuncionarios(): void {
@@ -104,6 +121,8 @@ export class GerenciarTemasComponent implements OnInit {
       cor: '#3498db',
       usuarioId: this.funcionarios.length > 0 ? this.funcionarios[0].id : 0
     };
+    this.funcionariosSelecionados = []; // Limpa seleção
+    this.searchFuncionario = ''; // Limpa pesquisa
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -118,6 +137,17 @@ export class GerenciarTemasComponent implements OnInit {
       cor: tema.cor,
       usuarioId: tema.usuarioId
     };
+    
+    // Carrega funcionários selecionados (compatível com nova estrutura)
+    if (tema.usuarios && tema.usuarios.length > 0) {
+      this.funcionariosSelecionados = tema.usuarios.map((u: any) => u.id);
+    } else if (tema.usuarioId) {
+      this.funcionariosSelecionados = [tema.usuarioId];
+    } else {
+      this.funcionariosSelecionados = [];
+    }
+    
+    this.searchFuncionario = ''; // Limpa pesquisa
     this.errorMessage = '';
     this.successMessage = '';
   }
@@ -132,8 +162,24 @@ export class GerenciarTemasComponent implements OnInit {
       cor: '#3498db',
       usuarioId: 0
     };
+    this.funcionariosSelecionados = [];
+    this.searchFuncionario = ''; // Limpa pesquisa
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  // Gerenciar seleção múltipla de funcionários
+  toggleFuncionario(funcionarioId: number): void {
+    const index = this.funcionariosSelecionados.indexOf(funcionarioId);
+    if (index > -1) {
+      this.funcionariosSelecionados.splice(index, 1);
+    } else {
+      this.funcionariosSelecionados.push(funcionarioId);
+    }
+  }
+
+  isFuncionarioSelecionado(funcionarioId: number): boolean {
+    return this.funcionariosSelecionados.includes(funcionarioId);
   }
 
   saveTema(): void {
@@ -145,12 +191,23 @@ export class GerenciarTemasComponent implements OnInit {
       return;
     }
 
+    if (this.funcionariosSelecionados.length === 0) {
+      this.errorMessage = 'Selecione pelo menos um funcionário.';
+      return;
+    }
+
     this.loading = true;
+
+    // Preparar objeto com lista de usuários
+    const temaData = {
+      ...this.temaForm,
+      usuarioIds: this.funcionariosSelecionados
+    };
 
     if (this.editMode && this.currentTemaId !== null) {
       // Atualizar tema existente - incluir o ID no objeto
       const updateDto = {
-        ...this.temaForm,
+        ...temaData,
         id: this.currentTemaId
       };
 
@@ -169,7 +226,7 @@ export class GerenciarTemasComponent implements OnInit {
       });
     } else {
       // Criar novo tema
-      this.temaCustoService.create(this.temaForm).subscribe({
+      this.temaCustoService.create(temaData).subscribe({
         next: () => {
           this.successMessage = 'Tema criado com sucesso!';
           this.loading = false;

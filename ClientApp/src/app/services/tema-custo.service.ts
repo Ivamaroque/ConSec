@@ -8,6 +8,13 @@ export interface TemaCustoDto {
   cor?: string;
   icone?: string;
   usuarioId: number;
+  usuarioIds?: number[]; // Novo - lista de IDs
+}
+
+export interface UsuarioSimplificado {
+  id: number;
+  nome: string;
+  email: string;
 }
 
 export interface TemaCustoResponse {
@@ -18,6 +25,7 @@ export interface TemaCustoResponse {
   icone: string;
   usuarioId: number;
   usuarioNome: string;
+  usuarios?: UsuarioSimplificado[]; // Novo - lista de usuários
 }
 
 export interface UsuarioListDto {

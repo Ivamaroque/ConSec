@@ -169,7 +169,7 @@
 }
 
 .form-card-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #121B4F;
   color: white;
   padding: 20px 24px;
   display: flex;
@@ -231,8 +231,8 @@
 }
 
 .form-control:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102,126,234,0.15);
+  border-color: #121B4F;
+  box-shadow: 0 0 0 0.2rem rgba(18, 27, 79, 0.15);
 }
 
 .form-actions {
@@ -310,7 +310,7 @@
 }
 
 .funcionario-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #121B4F;
   padding: 24px;
   display: flex;
   align-items: center;

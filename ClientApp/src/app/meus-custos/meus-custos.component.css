@@ -8,9 +8,8 @@
 /* Sidebar ESQUERDA - Temas Disponíveis */
 .sidebar-left {
   width: 250px;
-  background-color: #2c3e50;
-  color: white;
-  padding: 0;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
   position: fixed;
   height: 100vh;
   left: 0;
@@ -18,65 +17,79 @@
   z-index: 1000;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .sidebar-logo {
-  padding: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  text-align: center;
+  padding: 24px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid #f0f0f0;
+  background: #121B4F;
+  color: white;
 }
 
 .sidebar-logo .material-icons {
-  font-size: 36px;
-  margin-bottom: 4px;
-  color: #3498db;
+  font-size: 32px;
+  color: white;
 }
 
 .sidebar-logo h5 {
-  font-size: 18px;
-  font-weight: 700;
   margin: 0;
-  letter-spacing: 1px;
+  font-weight: 700;
+  font-size: 20px;
 }
 
 /* Info do Usuário */
 .user-info {
   padding: 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 2px solid #f0f0f0;
   display: flex;
   align-items: center;
   gap: 12px;
+  background: white;
 }
 
-.user-info .material-icons {
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar .material-icons {
   font-size: 48px;
-  color: #3498db;
+  color: #121B4F;
+}
+
+.user-details {
+  flex: 1;
 }
 
 .user-name {
   margin: 0;
   font-size: 14px;
   font-weight: 600;
-  color: white;
+  color: #2c3e50;
 }
 
 .user-role {
   font-size: 12px;
-  color: rgba(255,255,255,0.7);
+  color: #6c757d;
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 16px 0;
+  padding: 20px 0;
   overflow-y: auto;
 }
 
 .nav-section-title {
-  padding: 12px 24px;
+  padding: 12px 20px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.5);
+  color: #6c757d;
   letter-spacing: 1px;
   display: flex;
   align-items: center;
@@ -85,48 +98,53 @@
 
 .nav-section-title .material-icons {
   font-size: 16px;
+  color: #121B4F;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 12px 24px;
-  color: rgba(255,255,255,0.8);
+  gap: 12px;
+  padding: 14px 20px;
+  color: #4a5568;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s ease;
   border-left: 3px solid transparent;
   cursor: pointer;
+  font-weight: 500;
 }
 
 .nav-item:hover {
-  background-color: rgba(255,255,255,0.05);
-  color: white;
-  border-left-color: #3498db;
+  background: linear-gradient(90deg, rgba(18, 27, 79, 0.1) 0%, transparent 100%);
+  color: #121B4F;
+  border-left-color: #121B4F;
 }
 
 .nav-item.active {
-  background-color: rgba(52,152,219,0.15);
-  color: white;
-  border-left-color: #3498db;
+  background: linear-gradient(90deg, rgba(18, 27, 79, 0.15) 0%, transparent 100%);
+  color: #121B4F;
+  border-left-color: #121B4F;
   font-weight: 600;
 }
 
 .nav-item .material-icons {
-  font-size: 18px;
-  margin-right: 12px;
-  width: 18px;
+  font-size: 24px;
+  width: 24px;
   text-align: center;
 }
 
-.logout-btn:hover {
-  background-color: rgba(231, 76, 60, 0.15);
-  border-left-color: #e74c3c;
-  color: #e74c3c;
+.sidebar-footer {
+  border-top: 2px solid #f0f0f0;
+  padding: 12px 0;
 }
 
-.sidebar-footer {
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding: 16px 0;
+.logout-btn {
+  color: #e53e3e;
+}
+
+.logout-btn:hover {
+  background: linear-gradient(90deg, rgba(229, 62, 62, 0.1) 0%, transparent 100%);
+  border-left-color: #e53e3e;
 }
 
 /* Área CENTRAL */
@@ -161,7 +179,7 @@
 }
 
 .page-header h2 .material-icons {
-  color: #3498db;
+  color: #121B4F;
   font-size: 28px;
 }
 
@@ -206,7 +224,7 @@
 }
 
 .form-card-header {
-  background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+  background: #121B4F;
   color: white;
   padding: 20px 24px;
 }
@@ -242,6 +260,52 @@
   color: #6c757d;
 }
 
+/* Autocomplete */
+.autocomplete-wrapper {
+  position: relative;
+}
+
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: -1px;
+}
+
+.autocomplete-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #495057;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background-color: #f8f9fa;
+}
+
+.autocomplete-item .material-icons {
+  font-size: 18px;
+  color: #6c757d;
+}
+
 .form-control {
   border-radius: 8px;
   border: 2px solid #e9ecef;
@@ -250,8 +314,8 @@
 }
 
 .form-control:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.15);
+  border-color: #121B4F;
+  box-shadow: 0 0 0 0.2rem rgba(18, 27, 79, 0.15);
 }
 
 /* Input Group para Valor */
@@ -275,11 +339,11 @@
 }
 
 .input-group:focus-within .input-group-text {
-  border-color: #3498db;
+  border-color: #121B4F;
 }
 
 .input-group:focus-within .form-control {
-  border-color: #3498db;
+  border-color: #121B4F;
 }
 
 /* Sidebar DIREITA - Custos do Mês */
@@ -310,7 +374,7 @@
 
 .sidebar-title .material-icons {
   font-size: 20px;
-  color: #3498db;
+  color: #121B4F;
 }
 
 .month-selector {
@@ -352,7 +416,7 @@
 .custo-tema {
   font-size: 11px;
   font-weight: 600;
-  color: #3498db;
+  color: #121B4F;
 }
 
 .custo-date {
@@ -389,22 +453,21 @@
   background: #f1f1f1;
 }
 
-.sidebar-right::-webkit-scrollbar-thumb {
+.sidebar-left::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-left::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar-left::-webkit-scrollbar-thumb {
   background: #cbd5e0;
   border-radius: 10px;
 }
 
-.sidebar-left::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.2);
-  border-radius: 10px;
-}
-
-.sidebar-right::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
-}
-
 .sidebar-left::-webkit-scrollbar-thumb:hover {
-  background: rgba(255,255,255,0.3);
+  background: #a0aec0;
 }
 
 /* Botões */
@@ -431,4 +494,7 @@
 
 .alert .material-icons {
   font-size: 20px;
+}
+.material-icons{
+  margin-right: 0px;
 }

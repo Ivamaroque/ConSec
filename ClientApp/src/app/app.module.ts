@@ -17,6 +17,10 @@ import { GerenciarFuncionariosComponent } from './gerenciar-funcionarios/gerenci
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthGuard } from './guards/auth.guard';
 import { MeusCustosComponent } from './meus-custos/meus-custos.component';
+import { GerenciarSaldoComponent } from './gerenciar-saldo/gerenciar-saldo.component';
+import { SidebarComponent } from './shared/sidebar/sidebar.component';
+import { CurrencyMaskDirective } from './directives/currency-mask.directive';
+import { VisualizarCustosComponent } from './visualizar-custos/visualizar-custos.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +34,11 @@ import { MeusCustosComponent } from './meus-custos/meus-custos.component';
     CadastrarCustosComponent,
     DashboardComponent,
     GerenciarFuncionariosComponent,
-    MeusCustosComponent
+    MeusCustosComponent,
+    GerenciarSaldoComponent,
+    SidebarComponent,
+    CurrencyMaskDirective,
+    VisualizarCustosComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -44,6 +52,8 @@ import { MeusCustosComponent } from './meus-custos/meus-custos.component';
       { path: 'meus-custos', component: MeusCustosComponent, canActivate: [AuthGuard], data: { role: 'funcionario' } },
       { path: 'gerenciar-temas', component: GerenciarTemasComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
       { path: 'gerenciar-funcionarios', component: GerenciarFuncionariosComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
+      { path: 'gerenciar-saldo', component: GerenciarSaldoComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
+      { path: 'visualizar-custos', component: VisualizarCustosComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
       { path: 'cadastrar-custos', component: CadastrarCustosComponent, canActivate: [AuthGuard], data: { role: 'gestor' } },
       { path: 'counter', component: CounterComponent, canActivate: [AuthGuard] },
       { path: 'fetch-data', component: FetchDataComponent, canActivate: [AuthGuard] },

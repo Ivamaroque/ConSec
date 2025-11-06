@@ -166,12 +166,111 @@
 }
 
 .form-card-header {
-  background: linear-gradient(135deg, #3498db 0%, #2ecc71 100%);
+  background: #121B4F;
   color: white;
   padding: 20px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* Estilos da lista de funcionários com checkboxes */
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box .material-icons {
+  position: absolute;
+  left: 12px;
+  color: #6c757d;
+  font-size: 20px;
+}
+
+.search-box input {
+  padding-left: 40px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  height: 40px;
+}
+
+.search-box input:focus {
+  border-color: #121B4F;
+  box-shadow: 0 0 0 0.2rem rgba(18, 27, 79, 0.15);
+}
+
+.selected-count {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.selected-count .badge {
+  background-color: #121B4F !important;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.funcionarios-checklist {
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 8px;
+  max-height: 200px; /* Altura máxima para ~3 itens */
+  overflow-y: auto;
+  background: #fff;
+}
+
+.funcionario-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 6px;
+}
+
+.funcionario-checkbox-item:last-child {
+  margin-bottom: 0;
+}
+
+.funcionario-checkbox-item:hover {
+  background: #f8f9fa;
+}
+
+.funcionario-checkbox-item input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: #121B4F;
+}
+
+.funcionario-checkbox-item label {
+  flex: 1;
+  cursor: pointer;
+  margin: 0;
+}
+
+.funcionario-checkbox-item strong {
+  display: block;
+  color: #2c3e50;
+  font-size: 14px;
+  margin-bottom: 2px;
+}
+
+.funcionario-checkbox-item small {
+  display: block;
+  color: #6c757d;
+  font-size: 12px;
+}
+
+.funcionarios-checklist .text-muted {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
 }
 
 .form-card-header h5 {

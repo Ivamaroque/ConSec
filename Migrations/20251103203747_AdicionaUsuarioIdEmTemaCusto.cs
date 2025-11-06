@@ -75,17 +75,62 @@ namespace ConSec.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_TemasCusto_Usuarios_UsuarioId",
-                table: "TemasCusto");
+            // Remove a foreign key se existir
+            migrationBuilder.Sql(@"
+                SET @fkExists = (
+                    SELECT COUNT(*) 
+                    FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'TemasCusto' 
+                    AND CONSTRAINT_NAME = 'FK_TemasCusto_Usuarios_UsuarioId'
+                );
+                
+                SET @sql = IF(@fkExists > 0, 
+                    'ALTER TABLE `TemasCusto` DROP FOREIGN KEY `FK_TemasCusto_Usuarios_UsuarioId`', 
+                    'SELECT ''Foreign key does not exist''');
+                    
+                PREPARE stmt FROM @sql;
+                EXECUTE stmt;
+                DEALLOCATE PREPARE stmt;
+            ");
 
-            migrationBuilder.DropIndex(
-                name: "IX_TemasCusto_UsuarioId",
-                table: "TemasCusto");
+            // Remove o índice se existir
+            migrationBuilder.Sql(@"
+                SET @indexExists = (
+                    SELECT COUNT(*) 
+                    FROM INFORMATION_SCHEMA.STATISTICS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'TemasCusto' 
+                    AND INDEX_NAME = 'IX_TemasCusto_UsuarioId'
+                );
+                
+                SET @sql = IF(@indexExists > 0, 
+                    'DROP INDEX `IX_TemasCusto_UsuarioId` ON `TemasCusto`', 
+                    'SELECT ''Index does not exist''');
+                    
+                PREPARE stmt FROM @sql;
+                EXECUTE stmt;
+                DEALLOCATE PREPARE stmt;
+            ");
 
-            migrationBuilder.DropColumn(
-                name: "UsuarioId",
-                table: "TemasCusto");
+            // Remove a coluna se existir
+            migrationBuilder.Sql(@"
+                SET @columnExists = (
+                    SELECT COUNT(*) 
+                    FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_SCHEMA = DATABASE() 
+                    AND TABLE_NAME = 'TemasCusto' 
+                    AND COLUMN_NAME = 'UsuarioId'
+                );
+                
+                SET @sql = IF(@columnExists > 0, 
+                    'ALTER TABLE `TemasCusto` DROP COLUMN `UsuarioId`', 
+                    'SELECT ''Column does not exist''');
+                    
+                PREPARE stmt FROM @sql;
+                EXECUTE stmt;
+                DEALLOCATE PREPARE stmt;
+            ");
         }
     }
 }

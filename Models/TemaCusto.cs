@@ -24,10 +24,14 @@ namespace ConSec.Models
         [StringLength(50)]
         public string? Icone { get; set; } = "label"; // Ícone padrão
 
-        // Relacionamento com Usuario (funcionário que pode usar este tema)
+        // Relacionamento com Usuario (funcionário que pode usar este tema) - DEPRECATED
+        // Mantido para compatibilidade com dados antigos
         public int? UsuarioId { get; set; }
         
         [ForeignKey("UsuarioId")]
         public Usuario? Usuario { get; set; }
+
+        // Novo relacionamento muitos-para-muitos
+        public ICollection<TemaCustoUsuario> TemaCustoUsuarios { get; set; } = new List<TemaCustoUsuario>();
     }
 }
